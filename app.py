@@ -17,11 +17,22 @@ class CalibrationEvent(wx.PyCommandEvent):
         wx.PyCommandEvent.__init__(self, etype, eid)
 
 class CalibrationThread(threading.Thread):
-    def __init__(self, parent):
+    def __init__(self, parent, eyetracker):
         self.parent = parent
+        self.eyetracker = eyetracker
+
         threading.Thread.__init__(self)
 
     def run(self):
+        print("Initiating calibration")
+        try:
+            self.eyetracker.calibrate()
+            print("Calibration process concluded")
+        except Exception as e:
+            print("Unable to initiate calibration:")
+            print(e)
+            self.Close()
+
         print("Posting events")
         event = CalibrationEvent(etype=EVT_TYPE_CALIBRATION, eid=-1)
         wx.PostEvent(self.parent, event)
@@ -103,15 +114,6 @@ class MyFrame(wx.Frame):
         self.ShowFullScreen(True)
         self.Show(True)
 
-        print("Initiating calibration", flush=True)
-        try:
-            pass
-            # self.eyetracker.calibrate()
-        except Exception as e:
-            print("Unable to initiate calibration:")
-            print(e)
-            self.Close()
-
     def OnCalibration(self, event):
         print("Event received!")
         print(event)
@@ -161,8 +163,7 @@ class MyFrame(wx.Frame):
 
         dc.DrawCircle(x, y, radius)
 
-# eyetracker = MyEyeTracker()
-eyetracker = None
+eyetracker = MyEyeTracker()
 
 app = wx.App(redirect=False)
 
@@ -172,7 +173,7 @@ frame = MyFrame(
     eyetracker=eyetracker,
 )
 
-worker = CalibrationThread(frame)
+worker = CalibrationThread(frame, eyetracker)
 worker.start()
 
 frame.ShowFullScreen(True)
