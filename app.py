@@ -186,7 +186,6 @@ class MyFrame(wx.Frame):
     def DrawCalibrationPoints(self, dc, display_width, display_height):
         dc.SetBrush(wx.Brush("blue"))
 
-        print(self.current_point)
         if self.current_point in self.point_mapping:
             self.point_mapping[self.current_point](
                 dc, display_width, display_height
