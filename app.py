@@ -1,7 +1,20 @@
 import wx
 
+from tobii_research import find_all_eyetrackers
+
+class MyEyeTracker:
+    def __init__(self):
+        trackers = find_all_eyetrackers()
+
+        if (len(trackers) == 0):
+            raise Exception("No tracker available")
+
+        self.eyetracker = trackers[0]
+
 class MyFrame(wx.Frame):
-    def __init__(self, parent, title):
+    def __init__(self, parent, title, eye_tracker):
+        self.eye_tracker = eye_tracker
+
         wx.Frame.__init__(self, parent, title=title, size=(200, 100))
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
@@ -55,6 +68,14 @@ class MyFrame(wx.Frame):
 
         dc.DrawCircle(x, y, radius)
 
+eyetracker = MyEyeTracker()
+
 app = wx.App(False)
-frame = MyFrame(None, 'Eye-Tracking Calibration')
+
+frame = MyFrame(
+    parent=None,
+    title='Eye-Tracking Calibration',
+    eye_tracker=eyetracker,
+)
+
 app.MainLoop()
