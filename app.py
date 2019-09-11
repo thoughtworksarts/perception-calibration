@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 import time
 import threading
 import wx
@@ -23,10 +23,27 @@ class PointLocation(Enum):
     LOWER_LEFT = (0.9, 0.1)
     LOWER_RIGHT =(0.9, 0.9)
 
+class CalibrationEventType(Enum):
+    SHOW_POINT = auto()
+    CALIBRATION_CONCLUDED = auto()
+
+SHOW_POINT = CalibrationEventType.SHOW_POINT
+CALIBRATION_CONCLUDED = CalibrationEventType.CALIBRATION_CONCLUDED
+
 class CalibrationEvent(wx.PyCommandEvent):
-    def __init__(self, etype, eid, point):
-        wx.PyCommandEvent.__init__(self, etype, eid)
+    def __init__(self, point=None):
+        wx.PyCommandEvent.__init__(self, EVT_TYPE_CALIBRATION, -1)
+
+class ShowPointEvent(CalibrationEvent):
+    def __init__(self, point):
+        CalibrationEvent.__init__(self)
+        self.calibration_event_type = SHOW_POINT
         self.point = point
+
+class CalibrationConcludedEvent(CalibrationEvent):
+    def __init__(self):
+        CalibrationEvent.__init__(self)
+        self.calibration_event_type = CALIBRATION_CONCLUDED
 
 class CalibrationThread(threading.Thread):
     def __init__(self, parent, eyetracker):
@@ -76,12 +93,7 @@ class MyEyeTracker:
         for point_enum in points_to_calibrate:
             point = point_enum.value
             print("Show a point on screen at {0}.".format(point))
-            event = CalibrationEvent(
-                etype=EVT_TYPE_CALIBRATION,
-                eid=-1,
-                point=point_enum,
-            )
-            wx.PostEvent(self.gui, event)
+            wx.PostEvent(self.gui, ShowPointEvent(point_enum))
 
             # Wait a little for user to focus.
             time.sleep(0.7)
@@ -92,12 +104,7 @@ class MyEyeTracker:
                 # Not all eye tracker models will fail at this point, but instead fail on ComputeAndApply.
                 calibration.collect_data(point[0], point[1])
 
-        event = CalibrationEvent(
-            etype=EVT_TYPE_CALIBRATION,
-            eid=-1,
-            point=None,
-        )
-        wx.PostEvent(self.gui, event)
+        wx.PostEvent(self.gui, ShowPointEvent(None))
 
         print("Computing and applying calibration.")
         calibration_result = calibration.compute_and_apply()
@@ -128,6 +135,8 @@ class MyEyeTracker:
 
         print("Left calibration mode.")
 
+        wx.PostEvent(self.gui, CalibrationConcludedEvent())
+
 class MyFrame(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(200, 100))
@@ -151,11 +160,14 @@ class MyFrame(wx.Frame):
 
 
     def OnCalibration(self, event):
-        self.current_point = event.point
+        if event.calibration_event_type == SHOW_POINT:
+            self.current_point = event.point
 
-        # Force a redraw
-        self.Refresh()
-        self.Update()
+            # Force a redraw
+            self.Refresh()
+            self.Update()
+        if event.calibration_event_type == CALIBRATION_CONCLUDED:
+            self.Close()
 
     def CloseFrame(self, event):
         self.Close()
