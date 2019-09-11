@@ -138,6 +138,12 @@ class MyFrame(wx.Frame):
 
         dc.SetBrush(wx.Brush("blue"))
 
+        # Center circle
+        x = display_width / 2
+        y = display_height / 2
+
+        dc.DrawCircle(x, y, radius)
+
         # Upper-left circle
         x = margin + radius
         y = margin + radius
