@@ -96,13 +96,12 @@ class MyEyeTracker:
             wx.PostEvent(self.gui, ShowPointEvent(point_enum))
 
             # Wait a little for user to focus.
-            time.sleep(0.7)
-
-            print("Collecting data at {0}.".format(point))
-            if calibration.collect_data(point[0], point[1]) != tr.CALIBRATION_STATUS_SUCCESS:
-                # Try again if it didn't go well the first time.
-                # Not all eye tracker models will fail at this point, but instead fail on ComputeAndApply.
-                calibration.collect_data(point[0], point[1])
+            for _ in range(3):
+                time.sleep(0.7)
+                print("Collecting data at {0}.".format(point))
+                result = calibration.collect_data(point[0], point[1])
+                if result == tr.CALIBRATION_STATUS_SUCCESS:
+                    break
 
         wx.PostEvent(self.gui, ShowPointEvent(None))
 
