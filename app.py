@@ -1,8 +1,35 @@
 import time
+import threading
 import wx
 
 import tobii_research as tr
 from tobii_research import find_all_eyetrackers
+
+import functools
+# Flush output by default (it gets buffered otherwise)
+print = functools.partial(print, flush=True)
+
+EVT_TYPE_CALIBRATION = wx.NewEventType()
+EVT_CALIBRATION = wx.PyEventBinder(EVT_TYPE_CALIBRATION)
+
+class CalibrationEvent(wx.PyCommandEvent):
+    def __init__(self, etype, eid):
+        wx.PyCommandEvent.__init__(self, etype, eid)
+
+class CalibrationThread(threading.Thread):
+    def __init__(self, parent):
+        self.parent = parent
+        threading.Thread.__init__(self)
+
+    def run(self):
+        print("Posting events")
+        event = CalibrationEvent(etype=EVT_TYPE_CALIBRATION, eid=-1)
+        wx.PostEvent(self.parent, event)
+        time.sleep(2)
+        wx.PostEvent(self.parent, event)
+        time.sleep(2)
+        wx.PostEvent(self.parent, event)
+        print("Events posted")
 
 class MyEyeTracker:
     def __init__(self):
@@ -71,17 +98,23 @@ class MyFrame(wx.Frame):
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_UP, self.CloseFrame)
+        self.Bind(EVT_CALIBRATION, self.OnCalibration)
 
         self.ShowFullScreen(True)
         self.Show(True)
 
-        print("Initiating calibration")
+        print("Initiating calibration", flush=True)
         try:
-            self.eyetracker.calibrate()
+            pass
+            # self.eyetracker.calibrate()
         except Exception as e:
             print("Unable to initiate calibration:")
             print(e)
             self.Close()
+
+    def OnCalibration(self, event):
+        print("Event received!")
+        print(event)
 
     def CloseFrame(self, event):
         self.Close()
@@ -128,7 +161,8 @@ class MyFrame(wx.Frame):
 
         dc.DrawCircle(x, y, radius)
 
-eyetracker = MyEyeTracker()
+# eyetracker = MyEyeTracker()
+eyetracker = None
 
 app = wx.App(redirect=False)
 
@@ -137,5 +171,11 @@ frame = MyFrame(
     title='Eye-Tracking Calibration',
     eyetracker=eyetracker,
 )
+
+worker = CalibrationThread(frame)
+worker.start()
+
+frame.ShowFullScreen(True)
+frame.Show(True)
 
 app.MainLoop()
