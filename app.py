@@ -92,11 +92,19 @@ class MyEyeTracker:
                 # Not all eye tracker models will fail at this point, but instead fail on ComputeAndApply.
                 calibration.collect_data(point[0], point[1])
 
+        event = CalibrationEvent(
+            etype=EVT_TYPE_CALIBRATION,
+            eid=-1,
+            point=None,
+        )
+        wx.PostEvent(self.gui, event)
+
         print("Computing and applying calibration.")
         calibration_result = calibration.compute_and_apply()
         print("Compute and apply returned {0} and collected at {1} points.".
               format(calibration_result.status, len(calibration_result.calibration_points)))
 
+        """
         # Analyze the data and maybe remove points that weren't good.
         recalibrate_point = (0.1, 0.1)
         print("Removing calibration point at {0}.".format(recalibrate_point))
@@ -111,6 +119,7 @@ class MyEyeTracker:
         calibration_result = calibration.compute_and_apply()
         print("Compute and apply returned {0} and collected at {1} points.".
               format(calibration_result.status, len(calibration_result.calibration_points)))
+        """
 
         # See that you're happy with the result.
 
@@ -132,10 +141,21 @@ class MyFrame(wx.Frame):
         self.ShowFullScreen(True)
         self.Show(True)
 
+        self.point_mapping = {
+            PointLocation.CENTER: self.DrawCenterCircle,
+            PointLocation.UPPER_LEFT: self.DrawUpperLeftCircle,
+            PointLocation.UPPER_RIGHT: self.DrawUpperRightCircle,
+            PointLocation.LOWER_LEFT: self.DrawLowerLeftCircle,
+            PointLocation.LOWER_RIGHT: self.DrawLowerRightCircle,
+        }
+
+
     def OnCalibration(self, event):
-        print("Event received!")
-        print(event)
-        print(event.point)
+        self.current_point = event.point
+
+        # Force a redraw
+        self.Refresh()
+        self.Update()
 
     def CloseFrame(self, event):
         self.Close()
@@ -155,7 +175,11 @@ class MyFrame(wx.Frame):
     def DrawCalibrationPoints(self, dc, display_width, display_height):
         dc.SetBrush(wx.Brush("blue"))
 
-        self.DrawCenterCircle(dc, display_width, display_height)
+        print(self.current_point)
+        if self.current_point in self.point_mapping:
+            self.point_mapping[self.current_point](
+                dc, display_width, display_height
+            )
 
     def DrawCenterCircle(self, dc, display_width, display_height):
         x = display_width / 2
