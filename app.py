@@ -9,6 +9,9 @@ import functools
 # Flush output by default (it gets buffered otherwise)
 print = functools.partial(print, flush=True)
 
+CIRCLE_MARGIN = 20
+CIRCLE_RADIUS = 20
+
 EVT_TYPE_CALIBRATION = wx.NewEventType()
 EVT_CALIBRATION = wx.PyEventBinder(EVT_TYPE_CALIBRATION)
 
@@ -133,40 +136,39 @@ class MyFrame(wx.Frame):
         self.DrawCalibrationPoints(dc, display_width, display_height)
 
     def DrawCalibrationPoints(self, dc, display_width, display_height):
-        margin = 20
-        radius = 20
-
         dc.SetBrush(wx.Brush("blue"))
 
-        # Center circle
+        self.DrawCenterCircle(dc, display_width, display_height)
+
+    def DrawCenterCircle(self, dc, display_width, display_height):
         x = display_width / 2
         y = display_height / 2
 
-        dc.DrawCircle(x, y, radius)
+        dc.DrawCircle(x, y, CIRCLE_RADIUS)
 
-        # Upper-left circle
-        x = margin + radius
-        y = margin + radius
+    def DrawUpperLeftCircle(self, dc, display_width, display_height):
+        x = CIRCLE_MARGIN + CIRCLE_RADIUS
+        y = CIRCLE_MARGIN + CIRCLE_RADIUS
 
-        dc.DrawCircle(x, y, radius)
+        dc.DrawCircle(x, y, CIRCLE_RADIUS)
 
-        # Upper-right circle
-        x = display_width - margin - radius
-        y = margin + radius
+    def DrawUpperRightCircle(self, dc, display_width, display_height):
+        x = display_width - CIRCLE_MARGIN - CIRCLE_RADIUS
+        y = CIRCLE_MARGIN + CIRCLE_RADIUS
 
-        dc.DrawCircle(x, y, radius)
+        dc.DrawCircle(x, y, CIRCLE_RADIUS)
 
-        # Lower-left circle
-        x = margin + radius
-        y = display_height - margin - radius
+    def DrawLowerLeftCircle(self, dc, display_width, display_height):
+        x = CIRCLE_MARGIN + CIRCLE_RADIUS
+        y = display_height - CIRCLE_MARGIN - CIRCLE_RADIUS
 
-        dc.DrawCircle(x, y, radius)
+        dc.DrawCircle(x, y, CIRCLE_RADIUS)
 
-        # Lower-right circle
-        x = display_width - margin - radius
-        y = display_height - margin - radius
+    def DrawLowerRightCircle(self, dc, display_width, display_height):
+        x = display_width - CIRCLE_MARGIN - CIRCLE_RADIUS
+        y = display_height - CIRCLE_MARGIN - CIRCLE_RADIUS
 
-        dc.DrawCircle(x, y, radius)
+        dc.DrawCircle(x, y, CIRCLE_RADIUS)
 
 app = wx.App(redirect=False)
 
