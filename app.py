@@ -1,3 +1,4 @@
+from enum import Enum
 import time
 import threading
 import wx
@@ -14,6 +15,13 @@ CIRCLE_RADIUS = 20
 
 EVT_TYPE_CALIBRATION = wx.NewEventType()
 EVT_CALIBRATION = wx.PyEventBinder(EVT_TYPE_CALIBRATION)
+
+class PointLocation(Enum):
+    CENTER = (0.5, 0.5)
+    UPPER_LEFT = (0.1, 0.1)
+    UPPER_RIGHT = (0.1, 0.9)
+    LOWER_LEFT = (0.9, 0.1)
+    LOWER_RIGHT =(0.9, 0.9)
 
 class CalibrationEvent(wx.PyCommandEvent):
     def __init__(self, etype, eid, point):
@@ -57,14 +65,21 @@ class MyEyeTracker:
 
         # Define the points on screen we should calibrate at.
         # The coordinates are normalized, i.e. (0.0, 0.0) is the upper left corner and (1.0, 1.0) is the lower right corner.
-        points_to_calibrate = [(0.5, 0.5), (0.1, 0.1), (0.1, 0.9), (0.9, 0.1), (0.9, 0.9)]
+        points_to_calibrate = [
+            PointLocation.CENTER,
+            PointLocation.UPPER_LEFT,
+            PointLocation.UPPER_RIGHT,
+            PointLocation.LOWER_LEFT,
+            PointLocation.LOWER_RIGHT,
+        ]
 
-        for point in points_to_calibrate:
+        for point_enum in points_to_calibrate:
+            point = point_enum.value
             print("Show a point on screen at {0}.".format(point))
             event = CalibrationEvent(
                 etype=EVT_TYPE_CALIBRATION,
                 eid=-1,
-                point=point,
+                point=point_enum,
             )
             wx.PostEvent(self.gui, event)
 
@@ -107,6 +122,8 @@ class MyEyeTracker:
 class MyFrame(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(200, 100))
+
+        self.current_point = None
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_UP, self.CloseFrame)
