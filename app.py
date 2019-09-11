@@ -13,8 +13,9 @@ EVT_TYPE_CALIBRATION = wx.NewEventType()
 EVT_CALIBRATION = wx.PyEventBinder(EVT_TYPE_CALIBRATION)
 
 class CalibrationEvent(wx.PyCommandEvent):
-    def __init__(self, etype, eid):
+    def __init__(self, etype, eid, point):
         wx.PyCommandEvent.__init__(self, etype, eid)
+        self.point = point
 
 class CalibrationThread(threading.Thread):
     def __init__(self, parent, eyetracker):
@@ -33,17 +34,10 @@ class CalibrationThread(threading.Thread):
             print(e)
             self.Close()
 
-        print("Posting events")
-        event = CalibrationEvent(etype=EVT_TYPE_CALIBRATION, eid=-1)
-        wx.PostEvent(self.parent, event)
-        time.sleep(2)
-        wx.PostEvent(self.parent, event)
-        time.sleep(2)
-        wx.PostEvent(self.parent, event)
-        print("Events posted")
-
 class MyEyeTracker:
-    def __init__(self):
+    def __init__(self, gui):
+        self.gui = gui
+
         trackers = find_all_eyetrackers()
 
         if (len(trackers) == 0):
@@ -64,6 +58,12 @@ class MyEyeTracker:
 
         for point in points_to_calibrate:
             print("Show a point on screen at {0}.".format(point))
+            event = CalibrationEvent(
+                etype=EVT_TYPE_CALIBRATION,
+                eid=-1,
+                point=point,
+            )
+            wx.PostEvent(self.gui, event)
 
             # Wait a little for user to focus.
             time.sleep(0.7)
@@ -102,9 +102,7 @@ class MyEyeTracker:
         print("Left calibration mode.")
 
 class MyFrame(wx.Frame):
-    def __init__(self, parent, title, eyetracker):
-        self.eyetracker = eyetracker
-
+    def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(200, 100))
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
@@ -117,6 +115,7 @@ class MyFrame(wx.Frame):
     def OnCalibration(self, event):
         print("Event received!")
         print(event)
+        print(event.point)
 
     def CloseFrame(self, event):
         self.Close()
@@ -163,15 +162,14 @@ class MyFrame(wx.Frame):
 
         dc.DrawCircle(x, y, radius)
 
-eyetracker = MyEyeTracker()
-
 app = wx.App(redirect=False)
 
 frame = MyFrame(
     parent=None,
     title='Eye-Tracking Calibration',
-    eyetracker=eyetracker,
 )
+
+eyetracker = MyEyeTracker(gui=frame)
 
 worker = CalibrationThread(frame, eyetracker)
 worker.start()
