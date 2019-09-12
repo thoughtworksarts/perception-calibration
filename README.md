@@ -4,6 +4,6 @@ GUI app for calibrating a Tobii eye-tracking tool.
 
 ## Requirements
 
-* Python **3.5**
+* Python **3.6**
 * Assumes **Windows**
 * Assumes **Tobii Pro**
