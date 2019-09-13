@@ -266,8 +266,7 @@ class MyFrame(wx.Frame):
 
         self.DrawUserEyeTargets(display)
 
-        self.DrawUserEye(display, left_user_position)
-        self.DrawUserEye(display, right_user_position)
+        self.DrawUserFace(display, left_user_position, right_user_position)
 
     def DrawUserEyeTargets(self, display):
         thickness = 8  # Arbitrary but promising guess
@@ -285,6 +284,25 @@ class MyFrame(wx.Frame):
         display.context.DrawCircle(left_x, center_y, radius)
         display.context.DrawCircle(right_x, center_y, radius)
 
+    def DrawUserFace(self, display, left_user_position, right_user_position):
+        self.DrawUserEye(display, left_user_position)
+        self.DrawUserEye(display, right_user_position)
+
+        display.context.SetPen(wx.Pen("green", 3))
+        display.context.SetBrush(wx.Brush("green", wx.TRANSPARENT))
+
+        if left_user_position.valid and right_user_position.valid:
+            x = (left_user_position.x + right_user_position.x) / 2
+            y = (left_user_position.y + right_user_position.y) / 2
+            z = (left_user_position.z + right_user_position.z) / 2
+
+            x = x * display.width
+            y = y * display.height
+
+            radius = 450 * (1 - z) # Arbitrary guess
+
+            display.context.DrawCircle(x, y, radius)
+
     def DrawUserEye(self, display, user_position):
         display.context.SetPen(wx.Pen("green", 3))
         display.context.SetBrush(wx.Brush("green", wx.TRANSPARENT))
@@ -292,7 +310,7 @@ class MyFrame(wx.Frame):
         if user_position.valid:
             x = display.width * user_position.x
             y = display.height * user_position.y
-            radius = 100 * user_position.z
+            radius = 100 * (1 - user_position.z)
 
             display.context.DrawCircle(int(x), int(y), int(radius))
 
