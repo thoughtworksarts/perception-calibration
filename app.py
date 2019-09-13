@@ -1,4 +1,5 @@
 from enum import Enum, auto
+import argparse
 import time
 import threading
 import wx
@@ -220,6 +221,17 @@ class MyFrame(wx.Frame):
         y = display_height - CIRCLE_MARGIN - CIRCLE_RADIUS
 
         dc.DrawCircle(x, y, CIRCLE_RADIUS)
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '--simulate-success',
+    action='store_true',
+    help='If true, exit with a success without attempting calibration',
+)
+args = parser.parse_args()
+
+if args.simulate_success:
+    exit(0)
 
 app = wx.App(redirect=False)
 
