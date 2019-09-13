@@ -29,6 +29,31 @@ class UserPosition:
         self.z = z
         self.valid = valid
 
+class UserPositions:
+    @staticmethod
+    def from_user_position_guide(guide):
+        left_guide = guide['left_user_position']
+        left_valid = guide['left_user_position_validity'] == 1
+
+        left_user_position = UserPosition(
+            x=left_guide[0],
+            y=left_guide[1],
+            z=left_guide[2],
+            valid=left_valid,
+        )
+
+        right_guide = guide['right_user_position']
+        right_valid = guide['right_user_position_validity'] == 1
+
+        right_user_position = UserPosition(
+            x=right_guide[0],
+            y=right_guide[1],
+            z=right_guide[2],
+            valid=right_valid,
+        )
+
+        return (left_user_position, right_user_position)
+
 class PointLocation(Enum):
     CENTER = (0.5, 0.5)
     UPPER_LEFT = (0.1, 0.1)
@@ -236,25 +261,8 @@ class MyFrame(wx.Frame):
             height=display_height,
         )
 
-        left_guide = self.user_position_guide['left_user_position']
-        left_valid = self.user_position_guide['left_user_position_validity'] == 1
-
-        left_user_position = UserPosition(
-            x=left_guide[0],
-            y=left_guide[1],
-            z=left_guide[2],
-            valid=left_valid,
-        )
-
-        right_guide = self.user_position_guide['right_user_position']
-        right_valid = self.user_position_guide['right_user_position_validity'] == 1
-
-        right_user_position = UserPosition(
-            x=right_guide[0],
-            y=right_guide[1],
-            z=right_guide[2],
-            valid=right_valid,
-        )
+        left_user_position, right_user_position = \
+            UserPositions.from_user_position_guide(self.user_position_guide)
 
         self.DrawUserEyeTargets(display)
 
