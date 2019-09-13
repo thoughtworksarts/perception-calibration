@@ -241,13 +241,6 @@ class MyFrame(wx.Frame):
         dc.SetPen(wx.Pen("green", 3))
         dc.SetBrush(wx.Brush("green", wx.TRANSPARENT))
 
-        # {'left_user_position': (nan, nan, nan), 'left_user_position_validity': 0, 'right_user_position': (0.43370795249938965, 0.4679925739765167, 0.7140541672706604), 'right_user_position_validity': 1}
-
-        left_user_position = self.user_position_guide['left_user_position']
-        left_user_position_valid = self.user_position_guide['left_user_position_validity'] == 1
-        right_user_position = self.user_position_guide['right_user_position']
-        right_user_position_valid = self.user_position_guide['left_user_position_validity'] == 1
-
         display = Display(
             context=dc,
             width=display_width,
