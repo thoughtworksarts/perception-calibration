@@ -230,17 +230,6 @@ class MyFrame(wx.Frame):
             self.DrawUserPositionGuide(dc, display_width, display_height)
 
     def DrawUserPositionGuide(self, dc, display_width, display_height):
-        dc.SetPen(wx.Pen("black", 3))
-        dc.SetBrush(wx.Brush("black", wx.TRANSPARENT))
-
-        center_x = display_width / 2
-        center_y = display_height / 2
-
-        dc.DrawCircle(center_x, center_y, 50)
-
-        dc.SetPen(wx.Pen("green", 3))
-        dc.SetBrush(wx.Brush("green", wx.TRANSPARENT))
-
         display = Display(
             context=dc,
             width=display_width,
@@ -267,10 +256,31 @@ class MyFrame(wx.Frame):
             valid=right_valid,
         )
 
+        self.DrawUserEyeTargets(display)
+
         self.DrawUserEye(display, left_user_position)
         self.DrawUserEye(display, right_user_position)
 
+    def DrawUserEyeTargets(self, display):
+        thickness = 8  # Arbitrary but promising guess
+        radius = 50  # Arbitrary but promising guess
+
+        display.context.SetPen(wx.Pen("black", thickness))
+        display.context.SetBrush(wx.Brush("black", wx.TRANSPARENT))
+
+        center_x = display.width / 2
+        center_y = display.height / 2
+
+        left_x = center_x - (radius * 2)
+        right_x = center_x + (radius * 2)
+
+        display.context.DrawCircle(left_x, center_y, radius)
+        display.context.DrawCircle(right_x, center_y, radius)
+
     def DrawUserEye(self, display, user_position):
+        display.context.SetPen(wx.Pen("green", 3))
+        display.context.SetBrush(wx.Brush("green", wx.TRANSPARENT))
+
         if user_position.valid:
             x = display.width * user_position.x
             y = display.height * user_position.y
