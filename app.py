@@ -25,9 +25,11 @@ class PointLocation(Enum):
 
 class CalibrationEventType(Enum):
     SHOW_POINT = auto()
+    UPDATE_USER_POSITION = auto()
     CALIBRATION_CONCLUDED = auto()
 
 SHOW_POINT = CalibrationEventType.SHOW_POINT
+UPDATE_USER_POSITION = CalibrationEventType.UPDATE_USER_POSITION
 CALIBRATION_CONCLUDED = CalibrationEventType.CALIBRATION_CONCLUDED
 
 class CalibrationEvent(wx.PyCommandEvent):
@@ -39,6 +41,12 @@ class ShowPointEvent(CalibrationEvent):
         CalibrationEvent.__init__(self)
         self.calibration_event_type = SHOW_POINT
         self.point = point
+
+class UpdateUserPositionEvent(CalibrationEvent):
+    def __init__(self, user_position_guide):
+        CalibrationEvent.__init__(self)
+        self.calibration_event_type = UPDATE_USER_POSITION
+        self.user_position_guide = user_position_guide
 
 class CalibrationConcludedEvent(CalibrationEvent):
     def __init__(self):
@@ -73,8 +81,23 @@ class MyEyeTracker:
 
         self.eyetracker = trackers[0]
 
+    def calibrate_user_position(self):
+        def callback(user_position_guide):
+            wx.PostEvent(self.gui, UpdateUserPositionEvent(user_position_guide))
+
+        print("Subscribing to user position guide")
+        self.eyetracker.subscribe_to(tr.EYETRACKER_USER_POSITION_GUIDE, callback, as_dictionary=True)
+
+        time.sleep(2)
+
+        self.eyetracker.unsubscribe_from(tr.EYETRACKER_USER_POSITION_GUIDE, callback)
+        print("Unsubscribed from user position guide")
+
     def calibrate(self):
         eyetracker = self.eyetracker
+
+        self.calibrate_user_position()
+
         calibration = tr.ScreenBasedCalibration(eyetracker)
 
         calibration.enter_calibration_mode()
