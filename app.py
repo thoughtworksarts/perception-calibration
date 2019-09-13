@@ -58,10 +58,39 @@ class CalibrationThread(threading.Thread):
         try:
             self.eyetracker.calibrate()
             print("Calibration process concluded")
+            exit(0)
         except Exception as e:
             print("Unable to initiate calibration:")
             print(e)
-            self.Close()
+            exit(1)
+
+class FakeEyeTracker:
+    """
+    For testing GUI integration in the absence of an actual Tobii device
+    """
+
+    def __init__(self, gui):
+        self.gui = gui
+
+    def calibrate(self):
+        points_to_calibrate = [
+            PointLocation.CENTER,
+            PointLocation.UPPER_LEFT,
+            PointLocation.UPPER_RIGHT,
+            PointLocation.LOWER_LEFT,
+            PointLocation.LOWER_RIGHT,
+        ]
+
+        for point_enum in points_to_calibrate:
+            point = point_enum.value
+            print("Show a point on screen at {0}.".format(point))
+            wx.PostEvent(self.gui, ShowPointEvent(point_enum))
+
+            time.sleep(0.3)
+
+        wx.PostEvent(self.gui, ShowPointEvent(None))
+
+        wx.PostEvent(self.gui, CalibrationConcludedEvent())
 
 class MyEyeTracker:
     def __init__(self, gui):
@@ -230,9 +259,6 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-if args.simulate_success:
-    exit(0)
-
 app = wx.App(redirect=False)
 
 frame = MyFrame(
@@ -240,7 +266,10 @@ frame = MyFrame(
     title='Eye-Tracking Calibration',
 )
 
-eyetracker = MyEyeTracker(gui=frame)
+if args.simulate_success:
+    eyetracker = FakeEyeTracker(gui=frame)
+else:
+    eyetracker = MyEyeTracker(gui=frame)
 
 worker = CalibrationThread(frame, eyetracker)
 worker.start()
