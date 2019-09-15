@@ -119,6 +119,11 @@ class FakeEyeTracker:
         self.gui = gui
 
     def calibrate(self):
+        self.simulate_eye_point_calibration()
+
+        wx.PostEvent(self.gui, CalibrationConcludedEvent())
+
+    def simulate_eye_point_calibration(self):
         points_to_calibrate = [
             PointLocation.CENTER,
             PointLocation.UPPER_LEFT,
@@ -135,8 +140,6 @@ class FakeEyeTracker:
             time.sleep(0.3)
 
         wx.PostEvent(self.gui, ShowPointEvent(None))
-
-        wx.PostEvent(self.gui, CalibrationConcludedEvent())
 
 class MyEyeTracker:
     def __init__(self, gui):
