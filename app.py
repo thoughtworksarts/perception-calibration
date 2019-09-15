@@ -17,6 +17,44 @@ CIRCLE_RADIUS = 20
 EVT_TYPE_CALIBRATION = wx.NewEventType()
 EVT_CALIBRATION = wx.PyEventBinder(EVT_TYPE_CALIBRATION)
 
+class Display:
+    def __init__(self, context, width, height):
+        self.context = context
+        self.width = width
+        self.height = height
+
+class UserPosition:
+    def __init__(self, x, y, z, valid):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.valid = valid
+
+class UserPositions:
+    @staticmethod
+    def from_user_position_guide(guide):
+        left_guide = guide['left_user_position']
+        left_valid = guide['left_user_position_validity'] == 1
+
+        left_user_position = UserPosition(
+            x=left_guide[0],
+            y=left_guide[1],
+            z=left_guide[2],
+            valid=left_valid,
+        )
+
+        right_guide = guide['right_user_position']
+        right_valid = guide['right_user_position_validity'] == 1
+
+        right_user_position = UserPosition(
+            x=right_guide[0],
+            y=right_guide[1],
+            z=right_guide[2],
+            valid=right_valid,
+        )
+
+        return (left_user_position, right_user_position)
+
 class PointLocation(Enum):
     CENTER = (0.5, 0.5)
     UPPER_LEFT = (0.1, 0.1)
@@ -26,9 +64,11 @@ class PointLocation(Enum):
 
 class CalibrationEventType(Enum):
     SHOW_POINT = auto()
+    UPDATE_USER_POSITION = auto()
     CALIBRATION_CONCLUDED = auto()
 
 SHOW_POINT = CalibrationEventType.SHOW_POINT
+UPDATE_USER_POSITION = CalibrationEventType.UPDATE_USER_POSITION
 CALIBRATION_CONCLUDED = CalibrationEventType.CALIBRATION_CONCLUDED
 
 class CalibrationEvent(wx.PyCommandEvent):
@@ -40,6 +80,12 @@ class ShowPointEvent(CalibrationEvent):
         CalibrationEvent.__init__(self)
         self.calibration_event_type = SHOW_POINT
         self.point = point
+
+class UpdateUserPositionEvent(CalibrationEvent):
+    def __init__(self, user_position_guide):
+        CalibrationEvent.__init__(self)
+        self.calibration_event_type = UPDATE_USER_POSITION
+        self.user_position_guide = user_position_guide
 
 class CalibrationConcludedEvent(CalibrationEvent):
     def __init__(self):
@@ -103,8 +149,23 @@ class MyEyeTracker:
 
         self.eyetracker = trackers[0]
 
+    def calibrate_user_position(self):
+        def callback(user_position_guide):
+            wx.PostEvent(self.gui, UpdateUserPositionEvent(user_position_guide))
+
+        print("Subscribing to user position guide")
+        self.eyetracker.subscribe_to(tr.EYETRACKER_USER_POSITION_GUIDE, callback, as_dictionary=True)
+
+        time.sleep(60)
+
+        self.eyetracker.unsubscribe_from(tr.EYETRACKER_USER_POSITION_GUIDE, callback)
+        print("Unsubscribed from user position guide")
+
     def calibrate(self):
         eyetracker = self.eyetracker
+
+        self.calibrate_user_position()
+
         calibration = tr.ScreenBasedCalibration(eyetracker)
 
         calibration.enter_calibration_mode()
@@ -171,6 +232,7 @@ class MyFrame(wx.Frame):
         wx.Frame.__init__(self, parent, title=title, size=(200, 100))
 
         self.current_point = None
+        self.user_position_guide = None
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_UP, self.CloseFrame)
@@ -195,6 +257,12 @@ class MyFrame(wx.Frame):
             # Force a redraw
             self.Refresh()
             self.Update()
+        if event.calibration_event_type == UPDATE_USER_POSITION:
+            self.user_position_guide = event.user_position_guide
+
+            # Force a redraw
+            self.Refresh()
+            self.Update()
         if event.calibration_event_type == CALIBRATION_CONCLUDED:
             self.Close()
 
@@ -211,7 +279,70 @@ class MyFrame(wx.Frame):
 
         display_width, display_height = wx.DisplaySize()
 
-        self.DrawCalibrationPoints(dc, display_width, display_height)
+        if self.current_point:
+            self.DrawCalibrationPoints(dc, display_width, display_height)
+        elif self.user_position_guide:
+            self.DrawUserPositionGuide(dc, display_width, display_height)
+
+    def DrawUserPositionGuide(self, dc, display_width, display_height):
+        display = Display(
+            context=dc,
+            width=display_width,
+            height=display_height,
+        )
+
+        left_user_position, right_user_position = \
+            UserPositions.from_user_position_guide(self.user_position_guide)
+
+        self.DrawUserEyeTargets(display)
+
+        self.DrawUserFace(display, left_user_position, right_user_position)
+
+    def DrawUserEyeTargets(self, display):
+        thickness = 8  # Arbitrary but promising guess
+        radius = 50  # Arbitrary but promising guess
+
+        display.context.SetPen(wx.Pen("black", thickness))
+        display.context.SetBrush(wx.Brush("black", wx.TRANSPARENT))
+
+        center_x = display.width / 2
+        center_y = display.height / 2
+
+        left_x = center_x - (radius * 2)
+        right_x = center_x + (radius * 2)
+
+        display.context.DrawCircle(left_x, center_y, radius)
+        display.context.DrawCircle(right_x, center_y, radius)
+
+    def DrawUserFace(self, display, left_user_position, right_user_position):
+        self.DrawUserEye(display, left_user_position)
+        self.DrawUserEye(display, right_user_position)
+
+        display.context.SetPen(wx.Pen("green", 3))
+        display.context.SetBrush(wx.Brush("green", wx.TRANSPARENT))
+
+        if left_user_position.valid and right_user_position.valid:
+            x = (left_user_position.x + right_user_position.x) / 2
+            y = (left_user_position.y + right_user_position.y) / 2
+            z = (left_user_position.z + right_user_position.z) / 2
+
+            x = x * display.width
+            y = y * display.height
+
+            radius = 450 * (1 - z) # Arbitrary guess
+
+            display.context.DrawCircle(x, y, radius)
+
+    def DrawUserEye(self, display, user_position):
+        display.context.SetPen(wx.Pen("green", 3))
+        display.context.SetBrush(wx.Brush("green", wx.TRANSPARENT))
+
+        if user_position.valid:
+            x = display.width * user_position.x
+            y = display.height * user_position.y
+            radius = 100 * (1 - user_position.z)
+
+            display.context.DrawCircle(int(x), int(y), int(radius))
 
     def DrawCalibrationPoints(self, dc, display_width, display_height):
         dc.SetBrush(wx.Brush("blue"))
