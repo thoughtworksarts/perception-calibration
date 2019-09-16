@@ -32,9 +32,10 @@ class UserPosition:
         self.valid = valid
 
 class UserPositions:
-    def __init__(self, left_position, right_position):
+    def __init__(self, left_position=None, right_position=None, score=0):
         self.left_position = left_position
         self.right_position = right_position
+        self.score = score
 
     def to_guide(self):
         left_validity = self.left_position.valid and 1 or 0
@@ -53,6 +54,7 @@ class UserPositions:
                 self.right_position.y,
                 self.right_position.z,
             ),
+            'score': self.score,
         }
 
     @staticmethod
