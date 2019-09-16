@@ -38,24 +38,43 @@ class UserPositions:
         self.score = score
 
     def to_guide(self):
-        left_validity = self.left_position.valid and 1 or 0
-        right_validity = self.right_position.valid and 1 or 0
+        guide = {}
 
-        return {
-            'left_user_position_validity': left_validity,
-            'left_user_position': (
+        if self.left_position:
+            left_validity = self.left_position.valid and 1 or 0
+            guide['left_user_position_validity'] = left_validity
+            guide['left_user_position'] = (
                 self.left_position.x,
                 self.left_position.y,
                 self.left_position.z,
-            ),
-            'right_user_position_validity': right_validity,
-            'right_user_position': (
+            )
+        else:
+            guide['left_user_position_validity'] = 0
+            guide['left_user_position'] = (
+                math.nan,
+                math.nan,
+                math.nan,
+            )
+
+        if self.right_position:
+            right_validity = self.right_position.valid and 1 or 0
+            guide['right_user_position_validity'] = right_validity
+            guide['right_user_position'] = (
                 self.right_position.x,
                 self.right_position.y,
                 self.right_position.z,
-            ),
-            'score': self.score,
-        }
+            )
+        else:
+            guide['right_user_position_validity'] = 0
+            guide['right_user_position'] = (
+                math.nan,
+                math.nan,
+                math.nan,
+            )
+
+        guide['score'] = self.score
+
+        return guide
 
     @staticmethod
     def from_user_position_guide(guide):
@@ -132,8 +151,10 @@ class CalibrationThread(threading.Thread):
             print("Calibration process concluded")
             exit(0)
         except Exception as e:
+            import traceback
             print("Unable to initiate calibration:")
-            print(e)
+            print(f"Error: {e}")
+            traceback.print_exc()
             exit(1)
 
 class FakeEyeTracker:
