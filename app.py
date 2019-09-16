@@ -12,6 +12,11 @@ import functools
 # Flush output by default (it gets buffered otherwise)
 print = functools.partial(print, flush=True)
 
+# Weights should sum up to 1.0
+X_SCORE_WEIGHT = 0.4
+Y_SCORE_WEIGHT = 0.4
+Z_SCORE_WEIGHT = 0.2
+
 CIRCLE_MARGIN = 20
 CIRCLE_RADIUS = 20
 
@@ -34,9 +39,10 @@ class UserPosition:
 class UserPositionScorer:
     def __init__(self):
         self.recent_positions = []
+        self.positions_range = 100  # Arbitrary threshold. TODO: Test
 
-    def add_position(self, user_positions):
-        if len(self.recent_positions) < 100:  # Arbitrary threshold. TODO: Test
+    def add_positions(self, user_positions):
+        if len(self.recent_positions) < self.positions_range:
             self.recent_positions.append(user_positions)
         else:
             self.recent_positions.pop(0)
@@ -46,9 +52,9 @@ class UserPositionScorer:
         total_score = 0
 
         for positions in self.recent_positions:
-            total_score += calculate_score_for_positions(positions)
+            total_score += self.calculate_score_for_positions(positions)
 
-        return total_score
+        return total_score / self.positions_range
 
     def calculate_score_for_positions(self, positions):
         left_score = self.calculate_score_for_position(positions.left_position)
@@ -61,13 +67,17 @@ class UserPositionScorer:
         if right_score == 0:
             return 0
 
-        return (left_score + right_score) / 2
+        return (left_score + right_score)
 
     def calculate_score_for_position(self, position):
         if not position.valid:
             return 0
 
-        return (position.x + position.y + position.z) / 3
+        x_score = abs(1 - position.x) * X_SCORE_WEIGHT
+        y_score = abs(1 - position.y) * Y_SCORE_WEIGHT
+        z_score = abs(1 - position.z) * Z_SCORE_WEIGHT
+
+        return (x_score + y_score + z_score)
 
 class UserPositions:
     def __init__(self, left_position=None, right_position=None):
@@ -218,20 +228,22 @@ class FakeEyeTracker:
         right_position = UserPosition(x=0.56, y=0.5, z=0.5, valid=True)
         user_positions = UserPositions(left_position, right_position)
 
-        for _ in range(500):
+        scorer = UserPositionScorer()
+        scorer.add_positions(user_positions)
+
+        for _ in range(5000):
             left_position, right_position = \
                 self.apply_random_head_step(left_position, right_position)
 
             user_positions = UserPositions(left_position, right_position)
 
-            if user_positions.score > 0:
-                self.user_position_score += user_positions.score
-            else:
-                self.user_position_score = 0
+            scorer.add_positions(user_positions)
+
+            score = scorer.calculate_total_score()
 
             fake_guide = user_positions.to_guide()
 
-            fake_guide['score'] = self.user_position_score
+            fake_guide['score'] = score
 
             wx.PostEvent(self.gui, UpdateUserPositionEvent(fake_guide))
             time.sleep(0.02)
