@@ -129,16 +129,8 @@ class FakeEyeTracker:
         wx.PostEvent(self.gui, CalibrationConcludedEvent())
 
     def simulate_user_position_calibration(self):
-        left_position = {
-            'x': 0.44,
-            'y': 0.5,
-            'z': 0.5,
-        }
-        right_position = {
-            'x': 0.56,
-            'y': 0.5,
-            'z': 0.5,
-        }
+        left_position = UserPosition(x=0.44, y=0.5, z=0.5, valid=True)
+        right_position = UserPosition(x=0.56, y=0.5, z=0.5, valid=True)
 
         for _ in range(500):
             left_position, right_position = \
@@ -156,13 +148,13 @@ class FakeEyeTracker:
         y_adjust = randint(-1, 1) / 500
         z_adjust = randint(-1, 1) / 500
 
-        left_position['x'] += x_adjust
-        left_position['y'] += y_adjust
-        left_position['z'] += z_adjust
+        left_position.x += x_adjust
+        left_position.y += y_adjust
+        left_position.z += z_adjust
 
-        right_position['x'] += x_adjust
-        right_position['y'] += y_adjust
-        right_position['z'] += z_adjust
+        right_position.x += x_adjust
+        right_position.y += y_adjust
+        right_position.z += z_adjust
 
         return (left_position, right_position)
 
@@ -170,15 +162,15 @@ class FakeEyeTracker:
         return {
             'left_user_position_validity': 1,
             'left_user_position': (
-                left_position['x'],
-                left_position['y'],
-                left_position['z'],
+                left_position.x,
+                left_position.y,
+                left_position.z,
             ),
             'right_user_position_validity': 1,
             'right_user_position': (
-                right_position['x'],
-                right_position['y'],
-                right_position['z'],
+                right_position.x,
+                right_position.y,
+                right_position.z,
             ),
         }
 
