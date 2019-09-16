@@ -335,7 +335,9 @@ class MyFrame(wx.Frame):
         thickness = 8  # Arbitrary but promising guess
         radius = 50  # Arbitrary but promising guess
 
-        display.context.SetPen(wx.Pen("white", thickness))
+        pen = wx.Pen("white", width=thickness, style=wx.PENSTYLE_SHORT_DASH)
+
+        display.context.SetPen(pen)
         display.context.SetBrush(wx.Brush("white", wx.TRANSPARENT))
 
         center_x = display.width / 2
@@ -355,7 +357,9 @@ class MyFrame(wx.Frame):
         self.DrawUserEye(display, left_user_position)
         self.DrawUserEye(display, right_user_position)
 
-        display.context.SetPen(wx.Pen("green", 3))
+        pen = wx.Pen("green", width=3, style=wx.PENSTYLE_SOLID)
+
+        display.context.SetPen(pen)
         display.context.SetBrush(wx.Brush("green", wx.TRANSPARENT))
 
         if left_user_position.valid and right_user_position.valid:
