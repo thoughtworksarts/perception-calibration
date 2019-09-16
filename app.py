@@ -240,6 +240,9 @@ class FakeEyeTracker:
 
             score = scorer.calculate_total_score()
 
+            if score > 0.85:
+                return
+
             fake_guide = user_positions.to_guide()
 
             fake_guide['score'] = score
