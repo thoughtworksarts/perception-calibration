@@ -140,15 +140,16 @@ class TobiiEyeTracker:
     def calibrate_user_position(self):
         scorer = UserPositionScorer()
 
-        def callback(user_position_guide):
-            scorer.add_positions(user_position_guide)
+        def callback(user_position_guide_dict):
+            guide = UserPositionGuide.from_dict(user_position_guide_dict)
+            scorer.add_positions(guide)
 
             score = scorer.calculate_total_score()
 
             self.user_position_score = score
-            user_position_guide.score = score
+            guide.score = score
 
-            wx.PostEvent(self.gui, UpdateUserPositionEvent(user_position_guide))
+            wx.PostEvent(self.gui, UpdateUserPositionEvent(guide))
 
         print("Subscribing to user position guide")
         self.eyetracker.subscribe_to(tr.EYETRACKER_USER_POSITION_GUIDE, callback, as_dictionary=True)
