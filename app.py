@@ -283,7 +283,11 @@ class FakeEyeTracker:
 
         wx.PostEvent(self.gui, ShowPointEvent(None))
 
-class MyEyeTracker:
+class TobiiEyeTracker:
+    """
+    Interface to a real Tobii eye tracker device
+    """
+
     def __init__(self, gui):
         self.gui = gui
         self.user_position_score = 0  # Tracks how well the user's head has been positioned
@@ -611,7 +615,7 @@ frame = MyFrame(
 if args.simulate_success:
     eyetracker = FakeEyeTracker(gui=frame)
 else:
-    eyetracker = MyEyeTracker(gui=frame)
+    eyetracker = TobiiEyeTracker(gui=frame)
 
 worker = CalibrationThread(frame, eyetracker)
 worker.start()
