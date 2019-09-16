@@ -18,7 +18,7 @@ class UserPositionGuide:
         self.left_position = left_position
         self.right_position = right_position
 
-        self.score = 0  # TODO: Remove
+        self.score = 0
 
     def to_dict(self):
         guide_dict = {}
@@ -81,7 +81,7 @@ class UserPositionGuide:
             valid=right_valid,
         )
 
-        return (left_user_position, right_user_position)
+        return UserPositionGuide(left_user_position, right_user_position)
 
 class PointLocation(Enum):
     CENTER = (0.5, 0.5)

@@ -68,14 +68,11 @@ class CalibrationFrame(wx.Frame):
             height=display_height,
         )
 
-        left_user_position, right_user_position = \
-            UserPositionGuide.from_dict(self.user_position_guide)
-
         self.DrawUserFaceTarget(display)
 
-        self.DrawUserFace(display, left_user_position, right_user_position)
+        self.DrawUserFace(display, self.user_position_guide)
 
-        self.DrawUserFaceScore(display, self.user_position_guide['score'])
+        self.DrawUserFaceScore(display, self.user_position_guide.score)
 
         self.DrawUserFaceDebugInfo(display)
 
@@ -101,7 +98,10 @@ class CalibrationFrame(wx.Frame):
 
         display.context.DrawCircle(center_x, center_y, radius)
 
-    def DrawUserFace(self, display, left_user_position, right_user_position):
+    def DrawUserFace(self, display, user_position_guide):
+        left_user_position = user_position_guide.left_position
+        right_user_position = user_position_guide.right_position
+
         self.DrawUserEye(display, left_user_position)
         self.DrawUserEye(display, right_user_position)
 
@@ -168,15 +168,15 @@ class CalibrationFrame(wx.Frame):
         display.context.DrawRectangle(bar_x, bar_y, bar_width, bar_height)
 
     def DrawUserFaceDebugInfo(self, display):
-        score = self.user_position_guide['score']
+        score = self.user_position_guide.score
 
         score_text = f"Head Position Score: {score}\n"
 
-        left = self.user_position_guide['left_user_position']
-        right = self.user_position_guide['right_user_position']
+        left = self.user_position_guide.left_position
+        right = self.user_position_guide.right_position
 
-        left_text = f"L: ({left[0]:0.4f}) ({left[1]:0.4f}) ({left[2]:0.4f})"
-        right_text = f"R: ({right[0]:0.4f}) ({right[1]:0.4f}) ({right[2]:0.4f})"
+        left_text = f"L: ({left.x:0.4f}) ({left.y:0.4f}) ({left.z:0.4f})"
+        right_text = f"L: ({right.x:0.4f}) ({right.y:0.4f}) ({right.z:0.4f})"
 
         text = "\n".join([score_text, left_text, right_text])
 

@@ -83,11 +83,9 @@ class FakeEyeTracker:
             if score > 0.85:
                 return
 
-            fake_guide = guide.to_dict()
+            guide.score = score
 
-            fake_guide['score'] = score
-
-            wx.PostEvent(self.gui, UpdateUserPositionEvent(fake_guide))
+            wx.PostEvent(self.gui, UpdateUserPositionEvent(guide))
             time.sleep(0.02)
 
     def apply_random_head_step(self, left_position, right_position):
@@ -143,17 +141,12 @@ class TobiiEyeTracker:
         scorer = UserPositionScorer()
 
         def callback(user_position_guide):
-            left_position, right_position = \
-                UserPositionGuide.from_user_position_guide(user_position_guide)
-
-            guide = UserPositionGuide(left_position, right_position)
-
-            scorer.add_positions(guide)
+            scorer.add_positions(user_position_guide)
 
             score = scorer.calculate_total_score()
 
             self.user_position_score = score
-            user_position_guide['score'] = score
+            user_position_guide.score = score
 
             wx.PostEvent(self.gui, UpdateUserPositionEvent(user_position_guide))
 
