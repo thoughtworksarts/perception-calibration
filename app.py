@@ -327,11 +327,11 @@ class MyFrame(wx.Frame):
         left_user_position, right_user_position = \
             UserPositions.from_user_position_guide(self.user_position_guide)
 
-        self.DrawUserEyeTargets(display)
+        self.DrawUserFaceTarget(display)
 
         self.DrawUserFace(display, left_user_position, right_user_position)
 
-    def DrawUserEyeTargets(self, display):
+    def DrawUserFaceTarget(self, display):
         thickness = 8  # Arbitrary but promising guess
         radius = 50  # Arbitrary but promising guess
 
@@ -346,6 +346,10 @@ class MyFrame(wx.Frame):
 
         display.context.DrawCircle(left_x, center_y, radius)
         display.context.DrawCircle(right_x, center_y, radius)
+
+        radius = 225  # Arbitrary but promising guess
+
+        display.context.DrawCircle(center_x, center_y, radius)
 
     def DrawUserFace(self, display, left_user_position, right_user_position):
         self.DrawUserEye(display, left_user_position)
