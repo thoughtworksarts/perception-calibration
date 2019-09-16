@@ -21,19 +21,19 @@ class UserPositionGuide:
         self.score = 0  # TODO: Remove
 
     def to_dict(self):
-        guide = {}
+        guide_dict = {}
 
         if self.left_position:
             left_validity = self.left_position.valid and 1 or 0
-            guide['left_user_position_validity'] = left_validity
-            guide['left_user_position'] = (
+            guide_dict['left_user_position_validity'] = left_validity
+            guide_dict['left_user_position'] = (
                 self.left_position.x,
                 self.left_position.y,
                 self.left_position.z,
             )
         else:
-            guide['left_user_position_validity'] = 0
-            guide['left_user_position'] = (
+            guide_dict['left_user_position_validity'] = 0
+            guide_dict['left_user_position'] = (
                 math.nan,
                 math.nan,
                 math.nan,
@@ -41,23 +41,23 @@ class UserPositionGuide:
 
         if self.right_position:
             right_validity = self.right_position.valid and 1 or 0
-            guide['right_user_position_validity'] = right_validity
-            guide['right_user_position'] = (
+            guide_dict['right_user_position_validity'] = right_validity
+            guide_dict['right_user_position'] = (
                 self.right_position.x,
                 self.right_position.y,
                 self.right_position.z,
             )
         else:
-            guide['right_user_position_validity'] = 0
-            guide['right_user_position'] = (
+            guide_dict['right_user_position_validity'] = 0
+            guide_dict['right_user_position'] = (
                 math.nan,
                 math.nan,
                 math.nan,
             )
 
-        guide['score'] = self.score
+        guide_dict['score'] = self.score
 
-        return guide
+        return guide_dict
 
     @staticmethod
     def from_dict(guide_dict):
