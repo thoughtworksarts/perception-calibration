@@ -144,20 +144,7 @@ class FakeEyeTracker:
             left_position, right_position = \
                 self.apply_random_head_step(left_position, right_position)
 
-            fake_guide = {
-                'left_user_position_validity': 1,
-                'left_user_position': (
-                    left_position['x'],
-                    left_position['y'],
-                    left_position['z'],
-                ),
-                'right_user_position_validity': 1,
-                'right_user_position': (
-                    right_position['x'],
-                    right_position['y'],
-                    right_position['z'],
-                ),
-            }
+            fake_guide = self.positions_to_guide(left_position, right_position)
 
             fake_guide['score'] = self.user_position_score
 
@@ -178,6 +165,22 @@ class FakeEyeTracker:
         right_position['z'] += z_adjust
 
         return (left_position, right_position)
+
+    def positions_to_guide(self, left_position, right_position):
+        return {
+            'left_user_position_validity': 1,
+            'left_user_position': (
+                left_position['x'],
+                left_position['y'],
+                left_position['z'],
+            ),
+            'right_user_position_validity': 1,
+            'right_user_position': (
+                right_position['x'],
+                right_position['y'],
+                right_position['z'],
+            ),
+        }
 
     def simulate_eye_point_calibration(self):
         points_to_calibrate = [
