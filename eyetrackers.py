@@ -140,16 +140,29 @@ class TobiiEyeTracker:
         self.eyetracker = trackers[0]
 
     def calibrate_user_position(self):
+        scorer = UserPositionScorer()
+
         def callback(user_position_guide):
-            guide_with_score = copy.copy(user_position_guide)
-            guide_with_score['score'] = self.user_position_score
+            left_position, right_position = \
+                UserPositions.from_user_position_guide(user_position_guide)
+
+            user_positions = UserPositions(left_position, right_position)
+
+            scorer.add_positions(user_positions)
+
+            score = scorer.calculate_total_score()
+
+            self.user_position_score = score
+            user_position_guide['score'] = score
 
             wx.PostEvent(self.gui, UpdateUserPositionEvent(user_position_guide))
 
         print("Subscribing to user position guide")
         self.eyetracker.subscribe_to(tr.EYETRACKER_USER_POSITION_GUIDE, callback, as_dictionary=True)
 
-        time.sleep(60)
+        while True:
+            if self.user_position_score > 0.85:
+                break
 
         self.eyetracker.unsubscribe_from(tr.EYETRACKER_USER_POSITION_GUIDE, callback)
         print("Unsubscribed from user position guide")
