@@ -73,9 +73,9 @@ class UserPositionScorer:
         if not position.valid:
             return 0
 
-        x_score = abs(1 - position.x) * X_SCORE_WEIGHT
-        y_score = abs(1 - position.y) * Y_SCORE_WEIGHT
-        z_score = abs(1 - position.z) * Z_SCORE_WEIGHT
+        x_score = abs(position.x) * X_SCORE_WEIGHT
+        y_score = abs(position.y) * Y_SCORE_WEIGHT
+        z_score = abs(position.z) * Z_SCORE_WEIGHT
 
         return (x_score + y_score + z_score)
 
@@ -255,11 +255,11 @@ class FakeEyeTracker:
 
         left_position.x += x_adjust
         left_position.y += y_adjust
-        left_position.z += z_adjust
+        #left_position.z += z_adjust
 
         right_position.x += x_adjust
         right_position.y += y_adjust
-        right_position.z += z_adjust
+        #right_position.z += z_adjust
 
         return (left_position, right_position)
 
@@ -447,6 +447,8 @@ class MyFrame(wx.Frame):
 
         self.DrawUserFaceScore(display, self.user_position_guide['score'])
 
+        self.DrawUserFaceDebugInfo(display)
+
     def DrawUserFaceTarget(self, display):
         thickness = 8  # Arbitrary but promising guess
         radius = 50  # Arbitrary but promising guess
@@ -502,10 +504,24 @@ class MyFrame(wx.Frame):
             display.context.DrawCircle(int(x), int(y), int(radius))
 
     def DrawUserFaceScore(self, display, score):
-        score_text = f"Head Position Score: {score}"
+        # TODO: Progress bar
+        pass
+
+    def DrawUserFaceDebugInfo(self, display):
+        score = self.user_position_guide['score']
+
+        score_text = f"Head Position Score: {score}\n"
+
+        left = self.user_position_guide['left_user_position']
+        right = self.user_position_guide['right_user_position']
+
+        left_text = f"L: ({left[0]:0.4f}) ({left[1]:0.4f}) ({left[2]:0.4f})"
+        right_text = f"R: ({right[0]:0.4f}) ({right[1]:0.4f}) ({right[2]:0.4f})"
+
+        text = "\n".join([score_text, left_text, right_text])
 
         display.context.SetTextForeground("white")
-        display.context.DrawText(text=score_text, x=10, y=10)
+        display.context.DrawText(text=text, x=10, y=10)
 
     def DrawCalibrationPoints(self, dc, display_width, display_height):
         dc.SetBrush(wx.Brush("blue"))
