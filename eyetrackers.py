@@ -80,10 +80,8 @@ class TobiiEyeTracker:
         print("Subscribing to user position guide")
         self.eyetracker.subscribe_to(self.api.EYETRACKER_USER_POSITION_GUIDE, callback, as_dictionary=True)
 
-        while True:
+        while self.user_position_score < 0.85:
             time.sleep(0.02)
-            if self.user_position_score > 0.85:
-                break
 
         self.eyetracker.unsubscribe_from(self.api.EYETRACKER_USER_POSITION_GUIDE, callback)
         print("Unsubscribed from user position guide")
