@@ -36,30 +36,37 @@ class CalibrationThread(threading.Thread):
             traceback.print_exc()
             exit(1)
 
+class CalibrationApp:
+    def __init__(self, args):
+        self.args = args
+
+    def start(self):
+        wx_app = wx.App(redirect=False)
+
+        frame = MyFrame(
+            parent=None,
+            title='Eye-Tracking Calibration',
+        )
+
+        if self.args.simulate_success:
+            eyetracker = FakeEyeTracker(gui=frame)
+        else:
+            eyetracker = TobiiEyeTracker(gui=frame)
+
+        worker = CalibrationThread(frame, eyetracker)
+        worker.start()
+
+        frame.ShowFullScreen(True)
+        frame.Show(True)
+
+        wx_app.MainLoop()
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--simulate-success',
     action='store_true',
     help='If true, exit with a success without attempting calibration',
 )
-args = parser.parse_args()
 
-app = wx.App(redirect=False)
-
-frame = MyFrame(
-    parent=None,
-    title='Eye-Tracking Calibration',
-)
-
-if args.simulate_success:
-    eyetracker = FakeEyeTracker(gui=frame)
-else:
-    eyetracker = TobiiEyeTracker(gui=frame)
-
-worker = CalibrationThread(frame, eyetracker)
-worker.start()
-
-frame.ShowFullScreen(True)
-frame.Show(True)
-
-app.MainLoop()
+app = CalibrationApp(parser.parse_args())
+app.start()
