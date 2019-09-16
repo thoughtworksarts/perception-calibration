@@ -125,12 +125,29 @@ class FakeEyeTracker:
         wx.PostEvent(self.gui, CalibrationConcludedEvent())
 
     def simulate_user_position_calibration(self):
-        for _ in range(100):
+        from random import randint
+
+        left_position = [0.44, 0.5, 0.5]
+        right_position = [0.56, 0.5, 0.5]
+
+        for _ in range(500):
+            x_adjust = randint(-1, 1) / 500
+            y_adjust = randint(-1, 1) / 500
+            z_adjust = randint(-1, 1) / 500
+
+            left_position[0] += x_adjust
+            left_position[1] += y_adjust
+            left_position[2] += z_adjust
+
+            right_position[0] += x_adjust
+            right_position[1] += y_adjust
+            right_position[2] += z_adjust
+
             fake_guide = {
                 'left_user_position_validity': 1,
-                'left_user_position': (0.44, 0.5, 0.5),
+                'left_user_position': left_position,
                 'right_user_position_validity': 1,
-                'right_user_position': (0.56, 0.5, 0.5),
+                'right_user_position': right_position,
             }
 
             wx.PostEvent(self.gui, UpdateUserPositionEvent(fake_guide))
