@@ -31,11 +31,50 @@ class UserPosition:
         self.z = z
         self.valid = valid
 
+class UserPositionScorer:
+    def __init__(self):
+        self.recent_positions = []
+
+    def add_position(self, user_positions):
+        if len(self.recent_positions) < 100:  # Arbitrary threshold. TODO: Test
+            self.recent_positions.append(user_positions)
+        else:
+            self.recent_positions.pop(0)
+            self.recent_positions.append(user_positions)
+
+    def calculate_total_score(self):
+        total_score = 0
+
+        for positions in self.recent_positions:
+            total_score += calculate_score_for_positions(positions)
+
+        return total_score
+
+    def calculate_score_for_positions(self, positions):
+        left_score = self.calculate_score_for_position(positions.left_position)
+
+        if left_score == 0:
+            return 0
+
+        right_score = self.calculate_score_for_position(positions.right_position)
+
+        if right_score == 0:
+            return 0
+
+        return (left_score + right_score) / 2
+
+    def calculate_score_for_position(self, position):
+        if not position.valid:
+            return 0
+
+        return (position.x + position.y + position.z) / 3
+
 class UserPositions:
-    def __init__(self, left_position=None, right_position=None, score=0):
+    def __init__(self, left_position=None, right_position=None):
         self.left_position = left_position
         self.right_position = right_position
-        self.score = score
+
+        self.score = 0  # TODO: Remove
 
     def to_guide(self):
         guide = {}
@@ -184,6 +223,11 @@ class FakeEyeTracker:
                 self.apply_random_head_step(left_position, right_position)
 
             user_positions = UserPositions(left_position, right_position)
+
+            if user_positions.score > 0:
+                self.user_position_score += user_positions.score
+            else:
+                self.user_position_score = 0
 
             fake_guide = user_positions.to_guide()
 
