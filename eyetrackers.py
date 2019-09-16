@@ -5,12 +5,6 @@ from constants import *
 from models import *
 from gui_events import *
 
-import tobii_research as tr
-from tobii_research import find_all_eyetrackers
-
-# import mock_tobii_research as tr
-# from mock_tobii_research import find_all_eyetrackers
-
 # Flush output by default (it gets buffered otherwise)
 import functools
 print = functools.partial(print, flush=True)
@@ -133,11 +127,12 @@ class TobiiEyeTracker:
     Interface to a real Tobii eye tracker device
     """
 
-    def __init__(self, gui):
+    def __init__(self, api, gui):
+        self.api = api
         self.gui = gui
         self.user_position_score = 0  # Tracks how well the user's head has been positioned
 
-        trackers = find_all_eyetrackers()
+        trackers = self.api.find_all_eyetrackers()
 
         if (len(trackers) == 0):
             raise Exception("No tracker available")
@@ -159,15 +154,14 @@ class TobiiEyeTracker:
             wx.PostEvent(self.gui, UpdateUserPositionEvent(guide))
 
         print("Subscribing to user position guide")
-        self.eyetracker.subscribe_to(tr.EYETRACKER_USER_POSITION_GUIDE, callback, as_dictionary=True)
+        self.eyetracker.subscribe_to(self.api.EYETRACKER_USER_POSITION_GUIDE, callback, as_dictionary=True)
 
         while True:
             time.sleep(0.02)
-            print(f"Score: {self.user_position_score}")
             if self.user_position_score > 0.85:
                 break
 
-        self.eyetracker.unsubscribe_from(tr.EYETRACKER_USER_POSITION_GUIDE, callback)
+        self.eyetracker.unsubscribe_from(self.api.EYETRACKER_USER_POSITION_GUIDE, callback)
         print("Unsubscribed from user position guide")
 
     def calibrate(self):
@@ -175,7 +169,7 @@ class TobiiEyeTracker:
 
         self.calibrate_user_position()
 
-        calibration = tr.ScreenBasedCalibration(eyetracker)
+        calibration = self.api.ScreenBasedCalibration(eyetracker)
 
         calibration.enter_calibration_mode()
         print("Entered calibration mode for eye tracker with serial number {0}.".format(eyetracker.serial_number))
@@ -200,7 +194,7 @@ class TobiiEyeTracker:
                 time.sleep(0.7)
                 print("Collecting data at {0}.".format(point))
                 result = calibration.collect_data(point[0], point[1])
-                if result == tr.CALIBRATION_STATUS_SUCCESS:
+                if result == self.api.CALIBRATION_STATUS_SUCCESS:
                     break
 
         wx.PostEvent(self.gui, ShowPointEvent(None))

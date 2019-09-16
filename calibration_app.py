@@ -6,6 +6,8 @@ from constants import *
 from models import *
 from gui import *
 
+from eyetrackers import TobiiEyeTracker
+
 class CalibrationThread(threading.Thread):
     def __init__(self, parent, eyetracker):
         self.parent = parent
@@ -27,15 +29,15 @@ class CalibrationThread(threading.Thread):
             exit(1)
 
 class CalibrationApp:
-    def __init__(self, eyetracker_class):
-        self.eyetracker_class = eyetracker_class
+    def __init__(self, api):
+        self.api = api
 
     def start(self):
         wx_app = wx.App(redirect=False)
 
         frame = CalibrationFrame()
 
-        eyetracker = self.eyetracker_class(gui=frame)
+        eyetracker = TobiiEyeTracker(api=self.api, gui=frame)
 
         worker = CalibrationThread(frame, eyetracker)
         worker.start()

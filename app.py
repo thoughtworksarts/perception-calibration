@@ -1,7 +1,5 @@
 import argparse
 
-from eyetrackers import TobiiEyeTracker, FakeEyeTracker
-
 from calibration_app import CalibrationApp
 
 # Flush output by default (it gets buffered otherwise)
@@ -17,9 +15,9 @@ parser.add_argument(
 args = parser.parse_args()
 
 if args.simulate_success:
-    eyetracker_class = FakeEyeTracker
+    import mock_tobii_research as tobii_api
 else:
-    eyetracker_class = TobiiEyeTracker
+    import tobii_research as tobii_api
 
-app = CalibrationApp(eyetracker_class=eyetracker_class)
+app = CalibrationApp(api=tobii_api)
 app.start()
