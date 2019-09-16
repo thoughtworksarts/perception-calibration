@@ -8,6 +8,13 @@ from gui_events import *
 import tobii_research as tr
 from tobii_research import find_all_eyetrackers
 
+# import mock_tobii_research as tr
+# from mock_tobii_research import find_all_eyetrackers
+
+# Flush output by default (it gets buffered otherwise)
+import functools
+print = functools.partial(print, flush=True)
+
 class UserPositionScorer:
     def __init__(self):
         self.recent_positions = []
@@ -155,6 +162,8 @@ class TobiiEyeTracker:
         self.eyetracker.subscribe_to(tr.EYETRACKER_USER_POSITION_GUIDE, callback, as_dictionary=True)
 
         while True:
+            time.sleep(0.02)
+            print(f"Score: {self.user_position_score}")
             if self.user_position_score > 0.85:
                 break
 

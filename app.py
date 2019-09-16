@@ -1,12 +1,11 @@
 import argparse
 
-import functools
-
 from eyetrackers import TobiiEyeTracker, FakeEyeTracker
 
 from calibration_app import CalibrationApp
 
 # Flush output by default (it gets buffered otherwise)
+import functools
 print = functools.partial(print, flush=True)
 
 parser = argparse.ArgumentParser()
