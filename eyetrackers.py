@@ -5,6 +5,9 @@ from constants import *
 from models import *
 from gui_events import *
 
+import tobii_research as tr
+from tobii_research import find_all_eyetrackers
+
 class UserPositionScorer:
     def __init__(self):
         self.recent_positions = []
