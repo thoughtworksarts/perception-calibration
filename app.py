@@ -32,6 +32,29 @@ class UserPosition:
         self.valid = valid
 
 class UserPositions:
+    def __init__(self, left_position, right_position):
+        self.left_position = left_position
+        self.right_position = right_position
+
+    def to_guide(self):
+        left_validity = self.left_position.valid and 1 or 0
+        right_validity = self.right_position.valid and 1 or 0
+
+        return {
+            'left_user_position_validity': left_validity,
+            'left_user_position': (
+                self.left_position.x,
+                self.left_position.y,
+                self.left_position.z,
+            ),
+            'right_user_position_validity': right_validity,
+            'right_user_position': (
+                self.right_position.x,
+                self.right_position.y,
+                self.right_position.z,
+            ),
+        }
+
     @staticmethod
     def from_user_position_guide(guide):
         left_guide = guide['left_user_position']
@@ -136,7 +159,7 @@ class FakeEyeTracker:
             left_position, right_position = \
                 self.apply_random_head_step(left_position, right_position)
 
-            fake_guide = self.positions_to_guide(left_position, right_position)
+            fake_guide = UserPositions(left_position, right_position).to_guide()
 
             fake_guide['score'] = self.user_position_score
 
@@ -157,22 +180,6 @@ class FakeEyeTracker:
         right_position.z += z_adjust
 
         return (left_position, right_position)
-
-    def positions_to_guide(self, left_position, right_position):
-        return {
-            'left_user_position_validity': 1,
-            'left_user_position': (
-                left_position.x,
-                left_position.y,
-                left_position.z,
-            ),
-            'right_user_position_validity': 1,
-            'right_user_position': (
-                right_position.x,
-                right_position.y,
-                right_position.z,
-            ),
-        }
 
     def simulate_eye_point_calibration(self):
         points_to_calibrate = [
