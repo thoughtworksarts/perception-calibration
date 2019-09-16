@@ -44,7 +44,15 @@ class UserPositionScorer:
 
         # print(f"{x_score} {y_score} {z_score}")
 
-        return 1 - abs(1 - score_sum)
+        score = 1 - abs(1 - score_sum)
+
+        # TODO: Score should not fall out of 0.0-1.0 range. Fix math
+        if score > 1:
+            score = 1
+        elif score < 0:
+            score = 0
+
+        return score
 
 class TobiiEyeTracker:
     """
