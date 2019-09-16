@@ -13,12 +13,12 @@ class UserPositionScorer:
         self.recent_positions = []
         self.positions_range = 100  # Arbitrary threshold. TODO: Test
 
-    def add_positions(self, user_positions):
+    def add_positions(self, guide):
         if len(self.recent_positions) < self.positions_range:
-            self.recent_positions.append(user_positions)
+            self.recent_positions.append(guide)
         else:
             self.recent_positions.pop(0)
-            self.recent_positions.append(user_positions)
+            self.recent_positions.append(guide)
 
     def calculate_total_score(self):
         total_score = 0
@@ -65,25 +65,25 @@ class FakeEyeTracker:
     def simulate_user_position_calibration(self):
         left_position = UserPosition(x=0.44, y=0.5, z=0.5, valid=True)
         right_position = UserPosition(x=0.56, y=0.5, z=0.5, valid=True)
-        user_positions = UserPositionGuide(left_position, right_position)
+        guide = UserPositionGuide(left_position, right_position)
 
         scorer = UserPositionScorer()
-        scorer.add_positions(user_positions)
+        scorer.add_positions(guide)
 
         for _ in range(5000):
             left_position, right_position = \
                 self.apply_random_head_step(left_position, right_position)
 
-            user_positions = UserPositionGuide(left_position, right_position)
+            guide = UserPositionGuide(left_position, right_position)
 
-            scorer.add_positions(user_positions)
+            scorer.add_positions(guide)
 
             score = scorer.calculate_total_score()
 
             if score > 0.85:
                 return
 
-            fake_guide = user_positions.to_dict()
+            fake_guide = guide.to_dict()
 
             fake_guide['score'] = score
 
@@ -146,9 +146,9 @@ class TobiiEyeTracker:
             left_position, right_position = \
                 UserPositionGuide.from_user_position_guide(user_position_guide)
 
-            user_positions = UserPositionGuide(left_position, right_position)
+            guide = UserPositionGuide(left_position, right_position)
 
-            scorer.add_positions(user_positions)
+            scorer.add_positions(guide)
 
             score = scorer.calculate_total_score()
 
