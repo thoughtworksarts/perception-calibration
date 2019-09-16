@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from random import randint
 import argparse
 import time
 import threading
@@ -128,8 +129,6 @@ class FakeEyeTracker:
         wx.PostEvent(self.gui, CalibrationConcludedEvent())
 
     def simulate_user_position_calibration(self):
-        from random import randint
-
         left_position = {
             'x': 0.44,
             'y': 0.5,
@@ -142,17 +141,8 @@ class FakeEyeTracker:
         }
 
         for _ in range(500):
-            x_adjust = randint(-1, 1) / 500
-            y_adjust = randint(-1, 1) / 500
-            z_adjust = randint(-1, 1) / 500
-
-            left_position['x'] += x_adjust
-            left_position['y'] += y_adjust
-            left_position['z'] += z_adjust
-
-            right_position['x'] += x_adjust
-            right_position['y'] += y_adjust
-            right_position['z'] += z_adjust
+            left_position, right_position = \
+                self.apply_random_head_step(left_position, right_position)
 
             fake_guide = {
                 'left_user_position_validity': 1,
@@ -173,6 +163,21 @@ class FakeEyeTracker:
 
             wx.PostEvent(self.gui, UpdateUserPositionEvent(fake_guide))
             time.sleep(0.02)
+
+    def apply_random_head_step(self, left_position, right_position):
+        x_adjust = randint(-1, 1) / 500
+        y_adjust = randint(-1, 1) / 500
+        z_adjust = randint(-1, 1) / 500
+
+        left_position['x'] += x_adjust
+        left_position['y'] += y_adjust
+        left_position['z'] += z_adjust
+
+        right_position['x'] += x_adjust
+        right_position['y'] += y_adjust
+        right_position['z'] += z_adjust
+
+        return (left_position, right_position)
 
     def simulate_eye_point_calibration(self):
         points_to_calibrate = [
