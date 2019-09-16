@@ -43,7 +43,7 @@ class CalibrationApp:
     def start(self):
         wx_app = wx.App(redirect=False)
 
-        frame = MyFrame(
+        frame = CalibrationFrame(
             parent=None,
             title='Eye-Tracking Calibration',
         )
