@@ -288,9 +288,9 @@ class MyFrame(wx.Frame):
     def OnPaint(self, event):
         dc = wx.PaintDC(self)
 
-        brush_white = wx.Brush("white")
+        brush_black = wx.Brush("black")
 
-        dc.SetBackground(brush_white)
+        dc.SetBackground(brush_black)
         dc.Clear()
 
         display_width, display_height = wx.DisplaySize()
@@ -318,8 +318,8 @@ class MyFrame(wx.Frame):
         thickness = 8  # Arbitrary but promising guess
         radius = 50  # Arbitrary but promising guess
 
-        display.context.SetPen(wx.Pen("black", thickness))
-        display.context.SetBrush(wx.Brush("black", wx.TRANSPARENT))
+        display.context.SetPen(wx.Pen("white", thickness))
+        display.context.SetBrush(wx.Brush("white", wx.TRANSPARENT))
 
         center_x = display.width / 2
         center_y = display.height / 2
