@@ -130,27 +130,43 @@ class FakeEyeTracker:
     def simulate_user_position_calibration(self):
         from random import randint
 
-        left_position = [0.44, 0.5, 0.5]
-        right_position = [0.56, 0.5, 0.5]
+        left_position = {
+            'x': 0.44,
+            'y': 0.5,
+            'z': 0.5,
+        }
+        right_position = {
+            'x': 0.56,
+            'y': 0.5,
+            'z': 0.5,
+        }
 
         for _ in range(500):
             x_adjust = randint(-1, 1) / 500
             y_adjust = randint(-1, 1) / 500
             z_adjust = randint(-1, 1) / 500
 
-            left_position[0] += x_adjust
-            left_position[1] += y_adjust
-            left_position[2] += z_adjust
+            left_position['x'] += x_adjust
+            left_position['y'] += y_adjust
+            left_position['z'] += z_adjust
 
-            right_position[0] += x_adjust
-            right_position[1] += y_adjust
-            right_position[2] += z_adjust
+            right_position['x'] += x_adjust
+            right_position['y'] += y_adjust
+            right_position['z'] += z_adjust
 
             fake_guide = {
                 'left_user_position_validity': 1,
-                'left_user_position': left_position,
+                'left_user_position': (
+                    left_position['x'],
+                    left_position['y'],
+                    left_position['z'],
+                ),
                 'right_user_position_validity': 1,
-                'right_user_position': right_position,
+                'right_user_position': (
+                    right_position['x'],
+                    right_position['y'],
+                    right_position['z'],
+                ),
             }
 
             fake_guide['score'] = self.user_position_score
