@@ -17,6 +17,11 @@ X_SCORE_WEIGHT = 0.4
 Y_SCORE_WEIGHT = 0.4
 Z_SCORE_WEIGHT = 0.2
 
+# Scores shrink expontentially worse the farther the head is off target
+X_SCORE_EXPONENT = 10
+Y_SCORE_EXPONENT = 10
+Z_SCORE_EXPONENT = 10
+
 CIRCLE_MARGIN = 20
 CIRCLE_RADIUS = 20
 
@@ -63,13 +68,15 @@ class UserPositionScorer:
         if not left.valid or not right.valid:
             return 0
 
-        x_score = left.x + right.x
-        y_score = left.y + right.y
-        z_score = left.z + right.z
+        x_score = ((left.x + right.x) ** X_SCORE_EXPONENT) * X_SCORE_WEIGHT
+        y_score = ((left.y + right.y) ** Y_SCORE_EXPONENT) * Y_SCORE_WEIGHT
+        z_score = ((left.z + right.z) ** Z_SCORE_EXPONENT) * Z_SCORE_WEIGHT
 
-        print(f"{x_score} {y_score} {z_score}")
+        score_sum = x_score + y_score + z_score
 
-        return 1 - abs(1 - ((x_score + y_score + z_score) / 3))
+        # print(f"{x_score} {y_score} {z_score}")
+
+        return 1 - abs(1 - score_sum)
 
 class UserPositions:
     def __init__(self, left_position=None, right_position=None):
@@ -247,11 +254,11 @@ class FakeEyeTracker:
 
         left_position.x += x_adjust
         left_position.y += y_adjust
-        #left_position.z += z_adjust
+        left_position.z += z_adjust
 
         right_position.x += x_adjust
         right_position.y += y_adjust
-        #right_position.z += z_adjust
+        right_position.z += z_adjust
 
         return (left_position, right_position)
 
