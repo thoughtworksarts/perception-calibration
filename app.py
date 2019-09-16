@@ -240,8 +240,8 @@ class FakeEyeTracker:
 
             score = scorer.calculate_total_score()
 
-            if score > 0.85:
-                return
+            #if score > 0.85:
+            #    return
 
             fake_guide = user_positions.to_guide()
 
@@ -506,8 +506,38 @@ class MyFrame(wx.Frame):
             display.context.DrawCircle(int(x), int(y), int(radius))
 
     def DrawUserFaceScore(self, display, score):
-        # TODO: Progress bar
-        pass
+        bar_width = 100
+        bar_height = 20
+
+        center_x = display.width / 2
+        center_y = display.height / 2
+
+        bar_x = center_x - (bar_width / 2)
+        bar_y = center_y + 300  # TODO: Derive from face radius
+
+        # TODO: Purposefully draw the progress bar as the mouth?
+
+        # Progress bar
+        display.context.SetPen(wx.Pen("white"))
+        display.context.SetBrush(wx.Brush("green"))
+
+        progress_height = bar_height
+        progress_width = bar_width * score
+        progress_x = center_x - (progress_width / 2) # TODO: Center properly
+        progress_y = bar_y
+
+        display.context.DrawRectangle(
+            progress_x,
+            progress_y,
+            progress_width,
+            bar_height,
+        )
+
+        # Frame around progress bar
+        display.context.SetPen(wx.Pen("white", 3))
+        display.context.SetBrush(wx.Brush("black", style=wx.TRANSPARENT))
+
+        display.context.DrawRectangle(bar_x, bar_y, bar_width, bar_height)
 
     def DrawUserFaceDebugInfo(self, display):
         score = self.user_position_guide['score']
