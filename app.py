@@ -43,10 +43,7 @@ class CalibrationApp:
     def start(self):
         wx_app = wx.App(redirect=False)
 
-        frame = CalibrationFrame(
-            parent=None,
-            title='Eye-Tracking Calibration',
-        )
+        frame = CalibrationFrame()
 
         if self.args.simulate_success:
             eyetracker = FakeEyeTracker(gui=frame)

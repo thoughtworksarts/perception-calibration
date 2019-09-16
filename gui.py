@@ -5,7 +5,7 @@ from models import *
 from gui_events import *
 
 class CalibrationFrame(wx.Frame):
-    def __init__(self, parent, title):
+    def __init__(self, parent=None, title='Eye-Tracking Calibration'):
         wx.Frame.__init__(self, parent, title=title, size=(200, 100))
 
         self.current_point = None
