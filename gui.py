@@ -69,7 +69,7 @@ class CalibrationFrame(wx.Frame):
         )
 
         left_user_position, right_user_position = \
-            UserPositions.from_user_position_guide(self.user_position_guide)
+            UserPositionGuide.from_dict(self.user_position_guide)
 
         self.DrawUserFaceTarget(display)
 

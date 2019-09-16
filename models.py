@@ -13,14 +13,14 @@ class UserPosition:
         self.z = z
         self.valid = valid
 
-class UserPositions:
+class UserPositionGuide:
     def __init__(self, left_position=None, right_position=None):
         self.left_position = left_position
         self.right_position = right_position
 
         self.score = 0  # TODO: Remove
 
-    def to_guide(self):
+    def to_dict(self):
         guide = {}
 
         if self.left_position:
@@ -60,9 +60,9 @@ class UserPositions:
         return guide
 
     @staticmethod
-    def from_user_position_guide(guide):
-        left_guide = guide['left_user_position']
-        left_valid = guide['left_user_position_validity'] == 1
+    def from_dict(guide_dict):
+        left_guide = guide_dict['left_user_position']
+        left_valid = guide_dict['left_user_position_validity'] == 1
 
         left_user_position = UserPosition(
             x=left_guide[0],
@@ -71,8 +71,8 @@ class UserPositions:
             valid=left_valid,
         )
 
-        right_guide = guide['right_user_position']
-        right_valid = guide['right_user_position_validity'] == 1
+        right_guide = guide_dict['right_user_position']
+        right_valid = guide_dict['right_user_position_validity'] == 1
 
         right_user_position = UserPosition(
             x=right_guide[0],

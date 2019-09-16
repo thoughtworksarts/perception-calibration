@@ -65,7 +65,7 @@ class FakeEyeTracker:
     def simulate_user_position_calibration(self):
         left_position = UserPosition(x=0.44, y=0.5, z=0.5, valid=True)
         right_position = UserPosition(x=0.56, y=0.5, z=0.5, valid=True)
-        user_positions = UserPositions(left_position, right_position)
+        user_positions = UserPositionGuide(left_position, right_position)
 
         scorer = UserPositionScorer()
         scorer.add_positions(user_positions)
@@ -74,7 +74,7 @@ class FakeEyeTracker:
             left_position, right_position = \
                 self.apply_random_head_step(left_position, right_position)
 
-            user_positions = UserPositions(left_position, right_position)
+            user_positions = UserPositionGuide(left_position, right_position)
 
             scorer.add_positions(user_positions)
 
@@ -83,7 +83,7 @@ class FakeEyeTracker:
             if score > 0.85:
                 return
 
-            fake_guide = user_positions.to_guide()
+            fake_guide = user_positions.to_dict()
 
             fake_guide['score'] = score
 
@@ -144,9 +144,9 @@ class TobiiEyeTracker:
 
         def callback(user_position_guide):
             left_position, right_position = \
-                UserPositions.from_user_position_guide(user_position_guide)
+                UserPositionGuide.from_user_position_guide(user_position_guide)
 
-            user_positions = UserPositions(left_position, right_position)
+            user_positions = UserPositionGuide(left_position, right_position)
 
             scorer.add_positions(user_positions)
 
