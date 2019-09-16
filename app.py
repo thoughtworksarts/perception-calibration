@@ -57,27 +57,19 @@ class UserPositionScorer:
         return total_score / self.positions_range
 
     def calculate_score_for_positions(self, positions):
-        left_score = self.calculate_score_for_position(positions.left_position)
+        left = positions.left_position
+        right = positions.right_position
 
-        if left_score == 0:
+        if not left.valid or not right.valid:
             return 0
 
-        right_score = self.calculate_score_for_position(positions.right_position)
+        x_score = left.x + right.x
+        y_score = left.y + right.y
+        z_score = left.z + right.z
 
-        if right_score == 0:
-            return 0
+        print(f"{x_score} {y_score} {z_score}")
 
-        return (left_score + right_score)
-
-    def calculate_score_for_position(self, position):
-        if not position.valid:
-            return 0
-
-        x_score = abs(position.x) * X_SCORE_WEIGHT
-        y_score = abs(position.y) * Y_SCORE_WEIGHT
-        z_score = abs(position.z) * Z_SCORE_WEIGHT
-
-        return (x_score + y_score + z_score)
+        return 1 - abs(1 - ((x_score + y_score + z_score) / 3))
 
 class UserPositions:
     def __init__(self, left_position=None, right_position=None):
