@@ -12,7 +12,7 @@ print = functools.partial(print, flush=True)
 class UserPositionScorer:
     def __init__(self):
         self.recent_positions = []
-        self.positions_range = 100  # Arbitrary threshold. TODO: Test
+        self.positions_range = USER_POSITION_SCORE_BACK_LOOK
 
     def add_positions(self, guide):
         if len(self.recent_positions) < self.positions_range:
