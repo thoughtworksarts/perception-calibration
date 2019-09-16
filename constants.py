@@ -1,5 +1,7 @@
 import wx
 
+USER_POSITION_SCORE_REQUIREMENT = 0.85  # 1.0 = perfect aligment
+
 # Weights should sum up to 1.0
 X_SCORE_WEIGHT = 0.4
 Y_SCORE_WEIGHT = 0.4
