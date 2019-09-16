@@ -118,6 +118,9 @@ class FakeEyeTracker:
     def __init__(self, gui):
         self.gui = gui
 
+        # Tracks how well the user's head has been positioned
+        self.user_position_score = 0
+
     def calibrate(self):
         self.simulate_user_position_calibration()
         self.simulate_eye_point_calibration()
@@ -150,6 +153,8 @@ class FakeEyeTracker:
                 'right_user_position': right_position,
             }
 
+            fake_guide['score'] = self.user_position_score
+
             wx.PostEvent(self.gui, UpdateUserPositionEvent(fake_guide))
             time.sleep(0.02)
 
@@ -174,6 +179,7 @@ class FakeEyeTracker:
 class MyEyeTracker:
     def __init__(self, gui):
         self.gui = gui
+        self.user_position_score = 0  # Tracks how well the user's head has been positioned
 
         trackers = find_all_eyetrackers()
 
@@ -184,6 +190,9 @@ class MyEyeTracker:
 
     def calibrate_user_position(self):
         def callback(user_position_guide):
+            guide_with_score = copy.copy(user_position_guide)
+            guide_with_score['score'] = self.user_position_score
+
             wx.PostEvent(self.gui, UpdateUserPositionEvent(user_position_guide))
 
         print("Subscribing to user position guide")
@@ -331,6 +340,8 @@ class MyFrame(wx.Frame):
 
         self.DrawUserFace(display, left_user_position, right_user_position)
 
+        self.DrawUserFaceScore(display, self.user_position_guide['score'])
+
     def DrawUserFaceTarget(self, display):
         thickness = 8  # Arbitrary but promising guess
         radius = 50  # Arbitrary but promising guess
@@ -384,6 +395,12 @@ class MyFrame(wx.Frame):
             radius = 100 * (1 - user_position.z)
 
             display.context.DrawCircle(int(x), int(y), int(radius))
+
+    def DrawUserFaceScore(self, display, score):
+        score_text = f"Head Position Score: {score}"
+
+        display.context.SetTextForeground("white")
+        display.context.DrawText(text=score_text, x=10, y=10)
 
     def DrawCalibrationPoints(self, dc, display_width, display_height):
         dc.SetBrush(wx.Brush("blue"))
