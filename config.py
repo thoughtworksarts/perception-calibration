@@ -1,6 +1,8 @@
 import os.path
 import configparser
 
+config_file_path = os.path.join(os.path.dirname(__file__), 'config.ini')
+
 config = configparser.ConfigParser()
 
 constants_and_defaults = {
@@ -28,10 +30,10 @@ constants_and_defaults = {
     "DOT_RESULT_SUCCESSES_REQUIREMENT": 7,
 }
 
-if not os.path.exists('config.ini'):
-    raise Exception('Missing file: config.ini. You may need to copy it from example_config.ini')
+if not os.path.exists(config_file_path):
+    raise Exception(f"Missing file: {config_file_path}. You may need to copy it from example_config.ini")
 
-config.read('config.ini')
+config.read(config_file_path)
 
 for constant_name in constants_and_defaults:
     settings = config['Settings']
