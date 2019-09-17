@@ -23,6 +23,9 @@ constants_and_defaults = {
 
     "CIRCLE_MARGIN": 20,
     "CIRCLE_RADIUS": 20,
+
+    "DOT_RESULT_BACK_LOOK": 10,
+    "DOT_RESULT_SUCCESSES_REQUIREMENT": 7,
 }
 
 if not os.path.exists('config.ini'):
