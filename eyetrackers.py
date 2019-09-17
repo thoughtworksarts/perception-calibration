@@ -1,7 +1,7 @@
 from random import randint
 import time
 
-from constants import *
+from config import *
 from models import *
 from gui_events import *
 

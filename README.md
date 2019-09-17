@@ -10,4 +10,5 @@ GUI app for calibrating a Tobii eye-tracking tool.
 
 ## How to Use
 
-`python app.py --help`
+1. Copy `example_config.ini` to `config.ini`
+2. `python app.py --help`

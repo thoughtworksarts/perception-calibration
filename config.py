@@ -1,3 +1,7 @@
+import configparser
+
+config = configparser.ConfigParser()
+
 constants_and_defaults = {
     # 1."0": perfect aligment,
     "USER_POSITION_SCORE_REQUIREMENT": 0.85,
@@ -20,7 +24,20 @@ constants_and_defaults = {
     "CIRCLE_RADIUS": 20,
 }
 
+config.read('config.ini')
+
 for constant_name in constants_and_defaults:
+    settings = config['Settings']
+
     default = constants_and_defaults[constant_name]
 
-    globals()[constant_name] = default
+    value = settings.get(constant_name, default)
+
+    if type(default) is int:
+        value = int(value)
+    elif type(default) is float:
+        value = float(value)
+    elif type(default) is bool:
+        value = bool(value)
+
+    globals()[constant_name] = value

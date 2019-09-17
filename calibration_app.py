@@ -2,7 +2,6 @@ import threading
 
 import wx
 
-from constants import *
 from models import *
 from gui import *
 
