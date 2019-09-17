@@ -4,6 +4,10 @@ from config import *
 from models import *
 from gui_events import *
 
+# Flush output by default (it gets buffered otherwise)
+import functools
+print = functools.partial(print, flush=True)
+
 class CalibrationFrame(wx.Frame):
     def __init__(self, parent=None, title='Eye-Tracking Calibration', debug=False):
         self.debug = debug

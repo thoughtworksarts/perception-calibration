@@ -8,6 +8,10 @@ from gui_events import CloseAppEvent
 
 from eyetrackers import TobiiEyeTracker
 
+# Flush output by default (it gets buffered otherwise)
+import functools
+print = functools.partial(print, flush=True)
+
 class CalibrationThread(threading.Thread):
     def __init__(self, app, parent, eyetracker):
         self.app = app
@@ -54,7 +58,9 @@ class CalibrationApp:
         worker.join()
         print("Killed calibration thread")
 
-        print(f"Exiting wxPython")
+        print("Exiting wxPython")
         wx.Exit()
+        print("Exited wxPython")
 
+        print("Exiting process with a success")
         exit(0)

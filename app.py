@@ -26,3 +26,6 @@ else:
 
 app = CalibrationApp(api=tobii_api, debug=args.debug)
 app.start()
+
+print("Very final exit")
+exit(0)
