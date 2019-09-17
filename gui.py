@@ -20,6 +20,12 @@ seat_adjustment_image_path = os.path.join(
     'If_You_Cannot_See.png',
 )
 
+stare_image_path = os.path.join(
+    os.path.dirname(__file__),
+    'media',
+    'Stare-at-each-dot-centered.png',
+)
+
 class CalibrationFrame(wx.Frame):
     def __init__(self, parent=None, title='Eye-Tracking Calibration', debug=False):
         self.debug = debug
@@ -28,6 +34,7 @@ class CalibrationFrame(wx.Frame):
 
         self.to_proceed_bitmap = wx.Bitmap(proceed_image_path)
         self.seat_adjustment_bitmap = wx.Bitmap(seat_adjustment_image_path)
+        self.stare_bitmap = wx.Bitmap(stare_image_path)
 
         self.current_point = None
         self.user_position_guide = None
@@ -229,6 +236,16 @@ class CalibrationFrame(wx.Frame):
         display.context.DrawText(text=text, x=10, y=10)
 
     def DrawCalibrationPoints(self, dc, display_width, display_height, success_count):
+        stare_x = (display_width / 2) - (self.stare_bitmap.GetWidth() / 2)
+        stare_y = (display_height / 2) - (self.stare_bitmap.GetHeight() / 2) - 120
+
+        dc.DrawBitmap(
+            bitmap=self.stare_bitmap,
+            x=stare_x,
+            y=stare_y,
+            useMask=False,
+        )
+
         dc.SetBrush(wx.Brush("blue"))
 
         if self.current_point in self.point_mapping:
