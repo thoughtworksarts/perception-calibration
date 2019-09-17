@@ -74,6 +74,8 @@ class TobiiEyeTracker:
     def post_event(self, event):
         if self.gui:  # In case the GUI has been closed in the other thread
             wx.PostEvent(self.gui, event)
+        else:
+            exit(0)
 
     def calibrate_user_position(self):
         scorer = UserPositionScorer()

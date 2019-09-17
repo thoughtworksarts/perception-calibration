@@ -31,7 +31,6 @@ class CalibrationFrame(wx.Frame):
             PointLocation.LOWER_RIGHT: self.DrawLowerRightCircle,
         }
 
-
     def OnCalibration(self, event):
         if event.calibration_event_type == SHOW_POINT:
             self.current_point = event.point
