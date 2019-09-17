@@ -12,6 +12,11 @@ parser.add_argument(
     action='store_true',
     help='If true, exit with a success without attempting calibration',
 )
+parser.add_argument(
+    '--debug',
+    action='store_true',
+    help='Enables debug mode (increased, more detailed reporting)',
+)
 args = parser.parse_args()
 
 if args.simulate_success:
@@ -19,5 +24,5 @@ if args.simulate_success:
 else:
     import tobii_research as tobii_api
 
-app = CalibrationApp(api=tobii_api)
+app = CalibrationApp(api=tobii_api, debug=args.debug)
 app.start()

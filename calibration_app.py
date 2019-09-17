@@ -29,13 +29,14 @@ class CalibrationThread(threading.Thread):
             exit(1)
 
 class CalibrationApp:
-    def __init__(self, api):
+    def __init__(self, api, debug=False):
         self.api = api
+        self.debug = debug
 
     def start(self):
         wx_app = wx.App(redirect=False)
 
-        frame = CalibrationFrame()
+        frame = CalibrationFrame(debug=self.debug)
 
         eyetracker = TobiiEyeTracker(api=self.api, gui=frame)
 

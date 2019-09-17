@@ -5,7 +5,9 @@ from models import *
 from gui_events import *
 
 class CalibrationFrame(wx.Frame):
-    def __init__(self, parent=None, title='Eye-Tracking Calibration'):
+    def __init__(self, parent=None, title='Eye-Tracking Calibration', debug=False):
+        self.debug = debug
+
         wx.Frame.__init__(self, parent, title=title, size=(200, 100))
 
         self.to_proceed_bitmap = wx.Bitmap("./media/Calibrate_Eye_Tracking_Proceed.png")
@@ -98,7 +100,8 @@ class CalibrationFrame(wx.Frame):
 
         self.DrawUserFaceScore(display, self.user_position_guide.score)
 
-        self.DrawUserFaceDebugInfo(display)
+        if self.debug:
+            self.DrawUserFaceDebugInfo(display)
 
     def DrawUserFaceTarget(self, display):
         thickness = 8  # Arbitrary but promising guess
