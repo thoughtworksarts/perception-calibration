@@ -26,7 +26,7 @@ class MockUserPositionThread(threading.Thread):
                 'left_user_position_validity': 1,
                 'left_user_position': (left_position.x, left_position.y, left_position.z),
                 'right_user_position_validity': 1,
-                'right_user_position': (right_position.x, right_position.y, right_position.z),
+               'right_user_position': (right_position.x, right_position.y, right_position.z),
             }
 
             self.callback(mock_guide_dict)
@@ -77,7 +77,11 @@ class ScreenBasedCalibration:
         pass
 
     def collect_data(self, x, y):
-        return "calibration_status_success"
+        # Succeeds more often than not
+        if randint(0, 3) == 0:
+            return "calibration_status_failure"
+        else:
+            return "calibration_status_success"
 
     def compute_and_apply(self):
         return MockCalibrationResult()
