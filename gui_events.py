@@ -19,10 +19,11 @@ class CalibrationEvent(wx.PyCommandEvent):
         wx.PyCommandEvent.__init__(self, EVT_TYPE_CALIBRATION, -1)
 
 class ShowPointEvent(CalibrationEvent):
-    def __init__(self, point):
+    def __init__(self, point, success_count=0):
         CalibrationEvent.__init__(self)
         self.calibration_event_type = SHOW_POINT
         self.point = point
+        self.success_count = success_count
 
 class UpdateUserPositionEvent(CalibrationEvent):
     def __init__(self, user_position_guide):

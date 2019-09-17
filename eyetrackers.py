@@ -141,8 +141,11 @@ class TobiiEyeTracker:
                     results.append(result)
 
                 successes = [r for r in results if r]
+                success_count = len(successes)
 
-                if len(successes) >= DOT_RESULT_SUCCESSES_REQUIREMENT:
+                self.post_event(ShowPointEvent(point_enum, success_count))
+
+                if success_count >= DOT_RESULT_SUCCESSES_REQUIREMENT:
                     break
 
         self.post_event(ShowPointEvent(None))
