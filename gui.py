@@ -8,14 +8,26 @@ from gui_events import *
 import functools
 print = functools.partial(print, flush=True)
 
+proceed_image_path = os.path.join(
+    os.path.dirname(__file__),
+    'media',
+    'Calibrate_Eye_Tracking_Proceed.png',
+)
+
+seat_adjustment_image_path = os.path.join(
+    os.path.dirname(__file__),
+    'media',
+    'If_You_Cannot_See.png',
+)
+
 class CalibrationFrame(wx.Frame):
     def __init__(self, parent=None, title='Eye-Tracking Calibration', debug=False):
         self.debug = debug
 
         wx.Frame.__init__(self, parent, title=title, size=(200, 100))
 
-        self.to_proceed_bitmap = wx.Bitmap("./media/Calibrate_Eye_Tracking_Proceed.png")
-        self.seat_adjustment_bitmap = wx.Bitmap("./media/If_You_Cannot_See.png")
+        self.to_proceed_bitmap = wx.Bitmap(proceed_image_path)
+        self.seat_adjustment_bitmap = wx.Bitmap(seat_adjustment_image_path)
 
         self.current_point = None
         self.user_position_guide = None
