@@ -8,9 +8,9 @@ print = functools.partial(print, flush=True)
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '--simulate-success',
+    '--simulate-tobii',
     action='store_true',
-    help='If true, exit with a success without attempting calibration',
+    help='Use mock Tobii API (simulates data in the absence of actual hardware)',
 )
 parser.add_argument(
     '--debug',
@@ -19,7 +19,7 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-if args.simulate_success:
+if args.simulate_tobii:
     import mock_tobii_research as tobii_api
 else:
     import tobii_research as tobii_api
