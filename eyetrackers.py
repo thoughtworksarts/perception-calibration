@@ -71,6 +71,10 @@ class TobiiEyeTracker:
 
         self.eyetracker = trackers[0]
 
+    def post_event(self, event):
+        if self.gui:  # In case the GUI has been closed in the other thread
+            wx.PostEvent(self.gui, event)
+
     def calibrate_user_position(self):
         scorer = UserPositionScorer()
 
@@ -83,7 +87,7 @@ class TobiiEyeTracker:
             self.user_position_score = score
             guide.score = score
 
-            wx.PostEvent(self.gui, UpdateUserPositionEvent(guide))
+            self.post_event(UpdateUserPositionEvent(guide))
 
         print("Subscribing to user position guide")
         self.eyetracker.subscribe_to(self.api.EYETRACKER_USER_POSITION_GUIDE, callback, as_dictionary=True)
@@ -116,8 +120,10 @@ class TobiiEyeTracker:
 
         for point_enum in points_to_calibrate:
             point = point_enum.value
+
             print("Show a point on screen at {0}.".format(point))
-            wx.PostEvent(self.gui, ShowPointEvent(point_enum))
+
+            self.post_event(ShowPointEvent(point_enum))
 
             # Wait a little for user to focus.
             for _ in range(3):
@@ -127,7 +133,7 @@ class TobiiEyeTracker:
                 if result == self.api.CALIBRATION_STATUS_SUCCESS:
                     break
 
-        wx.PostEvent(self.gui, ShowPointEvent(None))
+        self.post_event(ShowPointEvent(None))
 
         print("Computing and applying calibration.")
         calibration_result = calibration.compute_and_apply()
@@ -158,4 +164,4 @@ class TobiiEyeTracker:
 
         print("Left calibration mode.")
 
-        wx.PostEvent(self.gui, CalibrationConcludedEvent())
+        self.post_event(CalibrationConcludedEvent())
