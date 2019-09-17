@@ -128,8 +128,8 @@ class TobiiEyeTracker:
 
             self.post_event(ShowPointEvent(point_enum))
 
-            # Wait a little for user to focus.
-            for _ in range(3):
+            # Keep calibrating each dot until successful
+            while True:
                 time.sleep(0.7)
                 print("Collecting data at {0}.".format(point))
                 result = calibration.collect_data(point[0], point[1])
