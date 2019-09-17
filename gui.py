@@ -19,6 +19,7 @@ class CalibrationFrame(wx.Frame):
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_UP, self.CloseFrame)
         self.Bind(EVT_CALIBRATION, self.OnCalibration)
+        self.Bind(EVT_CLOSE_APP, self.CloseFrame)
 
         self.ShowFullScreen(True)
         self.Show(True)
@@ -49,6 +50,7 @@ class CalibrationFrame(wx.Frame):
             self.Close()
 
     def CloseFrame(self, event):
+        print("Closing Frame")
         self.Close()
 
     def OnPaint(self, event):

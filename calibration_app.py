@@ -19,13 +19,20 @@ class CalibrationThread(threading.Thread):
         try:
             self.eyetracker.calibrate()
             print("Calibration process concluded")
-            exit(0)
         except Exception as e:
             import traceback
             print("Unable to initiate calibration:")
             print(f"Error: {e}")
             traceback.print_exc()
             exit(1)
+
+        # TODO: Remove overkill exits
+        print("Destroying Frame")
+        self.parent.Destroy()
+        print("Exiting wxPython")
+        wx.Exit()
+        print("Exiting program")
+        exit(0)
 
 class CalibrationApp:
     def __init__(self, api, debug=False):

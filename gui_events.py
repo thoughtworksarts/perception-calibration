@@ -14,9 +14,16 @@ CALIBRATION_CONCLUDED = CalibrationEventType.CALIBRATION_CONCLUDED
 EVT_TYPE_CALIBRATION = wx.NewEventType()
 EVT_CALIBRATION = wx.PyEventBinder(EVT_TYPE_CALIBRATION)
 
+EVT_TYPE_CLOSE_APP = wx.NewEventType()
+EVT_CLOSE_APP = wx.PyEventBinder(EVT_TYPE_CLOSE_APP)
+
 class CalibrationEvent(wx.PyCommandEvent):
     def __init__(self, point=None):
         wx.PyCommandEvent.__init__(self, EVT_TYPE_CALIBRATION, -1)
+
+class CloseAppEvent(wx.PyCommandEvent):
+    def __init__(self, point=None):
+        wx.PyCommandEvent.__init__(self, EVT_TYPE_CLOSE_APP, -1)
 
 class ShowPointEvent(CalibrationEvent):
     def __init__(self, point, success_count=0):
