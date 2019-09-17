@@ -4,11 +4,13 @@ import wx
 
 from models import *
 from gui import *
+from gui_events import CloseAppEvent
 
 from eyetrackers import TobiiEyeTracker
 
 class CalibrationThread(threading.Thread):
-    def __init__(self, parent, eyetracker):
+    def __init__(self, app, parent, eyetracker):
+        self.app = app
         self.parent = parent
         self.eyetracker = eyetracker
 
@@ -26,14 +28,6 @@ class CalibrationThread(threading.Thread):
             traceback.print_exc()
             exit(1)
 
-        # TODO: Remove overkill exits
-        print("Destroying Frame")
-        self.parent.Destroy()
-        print("Exiting wxPython")
-        wx.Exit()
-        print("Exiting program")
-        exit(0)
-
 class CalibrationApp:
     def __init__(self, api, debug=False):
         self.api = api
@@ -46,10 +40,21 @@ class CalibrationApp:
 
         eyetracker = TobiiEyeTracker(api=self.api, gui=frame)
 
-        worker = CalibrationThread(frame, eyetracker)
+        worker = CalibrationThread(wx_app, frame, eyetracker)
         worker.start()
 
         frame.ShowFullScreen(True)
         frame.Show(True)
 
         wx_app.MainLoop()
+
+        print("Exited main loop")
+
+        print("Killing calibration thread")
+        worker.join()
+        print("Killed calibration thread")
+
+        print(f"Exiting wxPython")
+        wx.Exit()
+
+        exit(0)

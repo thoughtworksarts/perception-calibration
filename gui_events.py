@@ -22,7 +22,7 @@ class CalibrationEvent(wx.PyCommandEvent):
         wx.PyCommandEvent.__init__(self, EVT_TYPE_CALIBRATION, -1)
 
 class CloseAppEvent(wx.PyCommandEvent):
-    def __init__(self, point=None):
+    def __init__(self):
         wx.PyCommandEvent.__init__(self, EVT_TYPE_CLOSE_APP, -1)
 
 class ShowPointEvent(CalibrationEvent):

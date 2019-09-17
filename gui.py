@@ -50,7 +50,7 @@ class CalibrationFrame(wx.Frame):
             self.Close()
 
     def CloseFrame(self, event):
-        print("Closing Frame")
+        print(f"Closing Frame ({self.__class__.__name__})")
         self.Close()
 
     def OnPaint(self, event):
