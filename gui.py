@@ -34,6 +34,7 @@ class CalibrationFrame(wx.Frame):
     def OnCalibration(self, event):
         if event.calibration_event_type == SHOW_POINT:
             self.current_point = event.point
+            self.success_count = event.success_count
 
             # Force a redraw
             self.Refresh()
@@ -61,7 +62,7 @@ class CalibrationFrame(wx.Frame):
         display_width, display_height = wx.DisplaySize()
 
         if self.current_point:
-            self.DrawCalibrationPoints(dc, display_width, display_height)
+            self.DrawCalibrationPoints(dc, display_width, display_height, self.success_count)
         elif self.user_position_guide:
             self.DrawUserPositionInstructions(dc, display_width, display_height)
             self.DrawUserPositionGuide(dc, display_width, display_height)
@@ -209,41 +210,47 @@ class CalibrationFrame(wx.Frame):
         display.context.SetTextForeground("white")
         display.context.DrawText(text=text, x=10, y=10)
 
-    def DrawCalibrationPoints(self, dc, display_width, display_height):
+    def DrawCalibrationPoints(self, dc, display_width, display_height, success_count):
         dc.SetBrush(wx.Brush("blue"))
 
         if self.current_point in self.point_mapping:
+            # Shrink the circle as successes accumulate
+            radius = CIRCLE_RADIUS * (1 - (success_count / DOT_RESULT_SUCCESSES_REQUIREMENT))
+
             self.point_mapping[self.current_point](
-                dc, display_width, display_height
+                dc,
+                display_width,
+                display_height,
+                radius
             )
 
-    def DrawCenterCircle(self, dc, display_width, display_height):
+    def DrawCenterCircle(self, dc, display_width, display_height, radius):
         x = display_width / 2
         y = display_height / 2
 
-        dc.DrawCircle(x, y, CIRCLE_RADIUS)
+        dc.DrawCircle(x, y, radius)
 
-    def DrawUpperLeftCircle(self, dc, display_width, display_height):
+    def DrawUpperLeftCircle(self, dc, display_width, display_height, radius):
         x = CIRCLE_MARGIN + CIRCLE_RADIUS
         y = CIRCLE_MARGIN + CIRCLE_RADIUS
 
-        dc.DrawCircle(x, y, CIRCLE_RADIUS)
+        dc.DrawCircle(x, y, radius)
 
-    def DrawUpperRightCircle(self, dc, display_width, display_height):
+    def DrawUpperRightCircle(self, dc, display_width, display_height, radius):
         x = display_width - CIRCLE_MARGIN - CIRCLE_RADIUS
         y = CIRCLE_MARGIN + CIRCLE_RADIUS
 
-        dc.DrawCircle(x, y, CIRCLE_RADIUS)
+        dc.DrawCircle(x, y, radius)
 
-    def DrawLowerLeftCircle(self, dc, display_width, display_height):
+    def DrawLowerLeftCircle(self, dc, display_width, display_height, radius):
         x = CIRCLE_MARGIN + CIRCLE_RADIUS
         y = display_height - CIRCLE_MARGIN - CIRCLE_RADIUS
 
-        dc.DrawCircle(x, y, CIRCLE_RADIUS)
+        dc.DrawCircle(x, y, radius)
 
-    def DrawLowerRightCircle(self, dc, display_width, display_height):
+    def DrawLowerRightCircle(self, dc, display_width, display_height, radius):
         x = display_width - CIRCLE_MARGIN - CIRCLE_RADIUS
         y = display_height - CIRCLE_MARGIN - CIRCLE_RADIUS
 
-        dc.DrawCircle(x, y, CIRCLE_RADIUS)
+        dc.DrawCircle(x, y, radius)
 
