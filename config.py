@@ -1,3 +1,4 @@
+import os.path
 import configparser
 
 config = configparser.ConfigParser()
@@ -23,6 +24,9 @@ constants_and_defaults = {
     "CIRCLE_MARGIN": 20,
     "CIRCLE_RADIUS": 20,
 }
+
+if not os.path.exists('config.ini'):
+    raise Exception('Missing file: config.ini. You may need to copy it from example_config.ini')
 
 config.read('config.ini')
 
