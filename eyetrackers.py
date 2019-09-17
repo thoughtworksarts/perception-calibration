@@ -132,7 +132,7 @@ class TobiiEyeTracker:
 
             # Keep calibrating each dot until successful
             while True:
-                time.sleep(0.2)
+                time.sleep(0.05)
                 print("Collecting data at {0}.".format(point))
                 result = calibration.collect_data(point[0], point[1])
                 if result == self.api.CALIBRATION_STATUS_SUCCESS:
