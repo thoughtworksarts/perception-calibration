@@ -8,6 +8,9 @@ class CalibrationFrame(wx.Frame):
     def __init__(self, parent=None, title='Eye-Tracking Calibration'):
         wx.Frame.__init__(self, parent, title=title, size=(200, 100))
 
+        self.to_proceed_bitmap = wx.Bitmap("./media/Calibrate_Eye_Tracking_Proceed.png")
+        self.seat_adjustment_bitmap = wx.Bitmap("./media/If_You_Cannot_See.png")
+
         self.current_point = None
         self.user_position_guide = None
 
@@ -59,7 +62,28 @@ class CalibrationFrame(wx.Frame):
         if self.current_point:
             self.DrawCalibrationPoints(dc, display_width, display_height)
         elif self.user_position_guide:
+            self.DrawUserPositionInstructions(dc, display_width, display_height)
             self.DrawUserPositionGuide(dc, display_width, display_height)
+
+    def DrawUserPositionInstructions(self, dc, display_width, display_height):
+        instruction_margin = 40
+
+        dc.DrawBitmap(
+            bitmap=self.to_proceed_bitmap,
+            x=instruction_margin,
+            y=instruction_margin,
+            useMask=False,
+        )
+
+        seat_x = display_width - self.seat_adjustment_bitmap.GetWidth() - instruction_margin
+        seat_y = display_height - self.seat_adjustment_bitmap.GetHeight() - instruction_margin
+
+        dc.DrawBitmap(
+            bitmap=self.seat_adjustment_bitmap,
+            x=seat_x,
+            y=seat_y,
+            useMask=False,
+        )
 
     def DrawUserPositionGuide(self, dc, display_width, display_height):
         display = Display(
