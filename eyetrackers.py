@@ -128,12 +128,23 @@ class TobiiEyeTracker:
 
             self.post_event(ShowPointEvent(point_enum))
 
+            result_back_track_count = 10  # TODO: Config
+            required_success_count = 7
+            results = []
+
             # Keep calibrating each dot until successful
             while True:
-                time.sleep(0.7)
+                time.sleep(0.2)
                 print("Collecting data at {0}.".format(point))
                 result = calibration.collect_data(point[0], point[1])
                 if result == self.api.CALIBRATION_STATUS_SUCCESS:
+                    if len(results) > result_back_track_count:
+                        results.pop(0)
+                    results.append(result)
+
+                successes = [r for r in results if r]
+
+                if len(successes) >= required_success_count:
                     break
 
         self.post_event(ShowPointEvent(None))
