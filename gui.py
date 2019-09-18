@@ -39,6 +39,7 @@ class CalibrationFrame(wx.Frame):
         self.current_point = None
         self.user_position_guide = None
 
+        self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_UP, self.CloseFrame)
         self.Bind(EVT_CALIBRATION, self.OnCalibration)
@@ -55,30 +56,43 @@ class CalibrationFrame(wx.Frame):
             PointLocation.LOWER_RIGHT: self.DrawLowerRightCircle,
         }
 
+    def OnSize(self, event):
+        size = self.ClientSize
+        self.buffer = wx.Bitmap(*size)
+        self.UpdateDrawing()
+
+    def UpdateDrawing(self):
+        dc = wx.MemoryDC()
+        dc.SelectObject(self.buffer)
+        self.Draw(dc)
+        del dc
+        display_width, display_height = wx.DisplaySize()
+        self.Refresh(eraseBackground=False)
+        self.Update()
+
     def OnCalibration(self, event):
         if event.calibration_event_type == SHOW_POINT:
             self.current_point = event.point
             self.success_count = event.success_count
-
-            # Force a redraw
-            self.Refresh()
-            self.Update()
         if event.calibration_event_type == UPDATE_USER_POSITION:
             self.user_position_guide = event.user_position_guide
-
-            # Force a redraw
-            self.Refresh()
-            self.Update()
         if event.calibration_event_type == CALIBRATION_CONCLUDED:
             self.Close()
+
+        print("calibration")
+
+        self.UpdateDrawing()
 
     def CloseFrame(self, event):
         print(f"Closing Frame ({self.__class__.__name__})")
         self.Close()
 
     def OnPaint(self, event):
-        dc = wx.PaintDC(self)
+        dc = wx.BufferedPaintDC(self, self.buffer)
+        print("paint")
 
+    def Draw(self, dc):
+        print("draw")
         brush_black = wx.Brush("black")
 
         dc.SetBackground(brush_black)
