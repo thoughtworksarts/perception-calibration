@@ -61,13 +61,13 @@ class CalibrationFrame(wx.Frame):
             self.success_count = event.success_count
 
             # Force a redraw
-            self.Refresh()
+            self.Refresh(eraseBackground=ERASE_BACKGROUND)
             self.Update()
         if event.calibration_event_type == UPDATE_USER_POSITION:
             self.user_position_guide = event.user_position_guide
 
             # Force a redraw
-            self.Refresh()
+            self.Refresh(eraseBackground=ERASE_BACKGROUND)
             self.Update()
         if event.calibration_event_type == CALIBRATION_CONCLUDED:
             self.Close()
@@ -91,6 +91,9 @@ class CalibrationFrame(wx.Frame):
         elif self.user_position_guide:
             self.DrawUserPositionInstructions(dc, display_width, display_height)
             self.DrawUserPositionGuide(dc, display_width, display_height)
+
+        if self.debug:
+            self.DrawConfigDebugInfo(dc, display_width, display_height)
 
     def DrawUserPositionInstructions(self, dc, display_width, display_height):
         instruction_margin = 40
@@ -289,3 +292,19 @@ class CalibrationFrame(wx.Frame):
 
         dc.DrawCircle(x, y, radius)
 
+    def DrawConfigDebugInfo(self, dc, display_width, display_height):
+        config_text = ''
+
+        for config_name in constants_and_defaults:
+            config_text += f"{config_name} = {globals()[config_name]}\n"
+
+        # TODO: Why is the text width so large?
+        text_width, text_height = dc.GetTextExtent(config_text)
+
+        text_width = 350  # TODO: Replace with dynamic text width
+
+        x = display_width - text_width - 10
+        y = 10
+
+        dc.SetTextForeground("white")
+        dc.DrawText(text=config_text, x=x, y=y)
