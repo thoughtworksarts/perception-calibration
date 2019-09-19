@@ -145,7 +145,7 @@ class TobiiEyeTracker:
                 if success_count >= DOT_RESULT_SUCCESSES_REQUIREMENT:
                     break
 
-        self.post_event(ShowPointEvent(None))
+        self.post_event(FinalizingCalibrationEvent())
 
         print("Computing and applying calibration.")
         calibration_result = calibration.compute_and_apply()

@@ -5,10 +5,12 @@ import wx
 class CalibrationEventType(Enum):
     SHOW_POINT = auto()
     UPDATE_USER_POSITION = auto()
+    FINALIZING_CALIBRATION = auto()
     CALIBRATION_CONCLUDED = auto()
 
 SHOW_POINT = CalibrationEventType.SHOW_POINT
 UPDATE_USER_POSITION = CalibrationEventType.UPDATE_USER_POSITION
+FINALIZING_CALIBRATION = CalibrationEventType.FINALIZING_CALIBRATION
 CALIBRATION_CONCLUDED = CalibrationEventType.CALIBRATION_CONCLUDED
 
 EVT_TYPE_CALIBRATION = wx.NewEventType()
@@ -37,6 +39,11 @@ class UpdateUserPositionEvent(CalibrationEvent):
         CalibrationEvent.__init__(self)
         self.calibration_event_type = UPDATE_USER_POSITION
         self.user_position_guide = user_position_guide
+
+class FinalizingCalibrationEvent(CalibrationEvent):
+    def __init__(self):
+        CalibrationEvent.__init__(self)
+        self.calibration_event_type = FINALIZING_CALIBRATION
 
 class CalibrationConcludedEvent(CalibrationEvent):
     def __init__(self):
