@@ -10,29 +10,11 @@ from gui_events import *
 import functools
 print = functools.partial(print, flush=True)
 
-proceed_image_path = os.path.join(
-    os.path.dirname(__file__),
-    'media',
-    'Calibrate_Eye_Tracking_Proceed.png',
-)
-
-seat_adjustment_image_path = os.path.join(
-    os.path.dirname(__file__),
-    'media',
-    'If_You_Cannot_See.png',
-)
-
-stare_image_path = os.path.join(
-    os.path.dirname(__file__),
-    'media',
-    'Stare-at-each-dot-centered.png',
-)
-
-finalizing_image_path = os.path.join(
-    os.path.dirname(__file__),
-    'media',
-    'Finalizing_Calibration.png',
-)
+class CalibrationBitmap(wx.Bitmap):
+    """Convenience class for getting Bitmaps from images stored in the "media" folder"""
+    def __init__(self, image_name):
+        path = os.path.join(os.path.dirname(__file__), 'media', image_name)
+        wx.Bitmap.__init__(self, path)
 
 class CalibrationMode(Enum):
     POSITIONING_USER = auto()
@@ -47,10 +29,10 @@ class CalibrationFrame(wx.Frame):
 
         wx.Frame.__init__(self, parent, title=title, size=(200, 100))
 
-        self.to_proceed_bitmap = wx.Bitmap(proceed_image_path)
-        self.seat_adjustment_bitmap = wx.Bitmap(seat_adjustment_image_path)
-        self.stare_bitmap = wx.Bitmap(stare_image_path)
-        self.finalizing_bitmap = wx.Bitmap(finalizing_image_path)
+        self.to_proceed_bitmap = CalibrationBitmap('Calibrate_Eye_Tracking_Proceed.png')
+        self.seat_adjustment_bitmap = CalibrationBitmap('If_You_Cannot_See.png')
+        self.stare_bitmap = CalibrationBitmap('Stare-at-each-dot-centered.png')
+        self.finalizing_bitmap = CalibrationBitmap('Finalizing_Calibration.png')
 
         self.current_point = None
         self.user_position_guide = None
