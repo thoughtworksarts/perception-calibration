@@ -28,6 +28,12 @@ stare_image_path = os.path.join(
     'Stare-at-each-dot-centered.png',
 )
 
+finalizing_image_path = os.path.join(
+    os.path.dirname(__file__),
+    'media',
+    'Finalizing_Calibration.png',
+)
+
 class CalibrationMode(Enum):
     POSITIONING_USER = auto()
     CALIBRATING_EYES = auto()
@@ -44,6 +50,7 @@ class CalibrationFrame(wx.Frame):
         self.to_proceed_bitmap = wx.Bitmap(proceed_image_path)
         self.seat_adjustment_bitmap = wx.Bitmap(seat_adjustment_image_path)
         self.stare_bitmap = wx.Bitmap(stare_image_path)
+        self.finalizing_bitmap = wx.Bitmap(finalizing_image_path)
 
         self.current_point = None
         self.user_position_guide = None
@@ -108,10 +115,15 @@ class CalibrationFrame(wx.Frame):
             self.DrawConfigDebugInfo(dc, display_width, display_height)
 
     def DrawFinalizingCalibration(self, dc, display_width, display_height):
-        text = 'Finalizing calibration'
+        finalizing_x = (display_width / 2) - (self.finalizing_bitmap.GetWidth() / 2)
+        finalizing_y = (display_height / 2) - (self.finalizing_bitmap.GetHeight() / 2)
 
-        dc.SetTextForeground("blue")
-        dc.DrawText(text=text, x=10, y=10)
+        dc.DrawBitmap(
+            bitmap=self.finalizing_bitmap,
+            x=finalizing_x,
+            y=finalizing_y,
+            useMask=False,
+        )
 
     def DrawUserPositionInstructions(self, dc, display_width, display_height):
         instruction_margin = 40
@@ -316,7 +328,7 @@ class CalibrationFrame(wx.Frame):
         for config_name in constants_and_defaults:
             config_text += f"{config_name} = {globals()[config_name]}\n"
 
-        config_text += "Current Mode: {self.mode}"
+        config_text += f"Current Mode: {self.mode}"
 
         # TODO: Why is the text width so large?
         text_width, text_height = dc.GetTextExtent(config_text)
