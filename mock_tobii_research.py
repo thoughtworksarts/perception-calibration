@@ -11,6 +11,7 @@ CALIBRATION_STATUS_SUCCESS = "calibration_status_success"
 class MockUserPositionThread(threading.Thread):
     def __init__(self, callback):
         self.callback = callback
+        self.keep_running = True
 
         threading.Thread.__init__(self)
 
@@ -19,6 +20,9 @@ class MockUserPositionThread(threading.Thread):
         right_position = UserPosition(x=0.56, y=0.5, z=0.5, valid=True)
 
         for _ in range(100_000_000):
+            if not self.keep_running:
+                return
+
             left_position, right_position = \
                 self.apply_random_head_step(left_position, right_position)
 
@@ -55,11 +59,11 @@ class MockEyeTracker:
         self.serial_number = "MOCK SERIAL NUMBER"
 
     def subscribe_to(self, guide, callback, as_dictionary=True):
-        worker = MockUserPositionThread(callback)
-        worker.start()
+        self.worker = MockUserPositionThread(callback)
+        self.worker.start()
 
     def unsubscribe_from(self, guide, callback):
-        pass
+        self.worker.keep_running = False
 
 class MockCalibrationResult:
     def __init__(self):
@@ -84,6 +88,7 @@ class ScreenBasedCalibration:
             return "calibration_status_success"
 
     def compute_and_apply(self):
+        time.sleep(1)  # Simulate finalization of calibration
         return MockCalibrationResult()
 
 def find_all_eyetrackers():
