@@ -1,3 +1,5 @@
+from enum import Enum, auto
+
 import wx
 
 from config import *
@@ -26,9 +28,16 @@ stare_image_path = os.path.join(
     'Stare-at-each-dot-centered.png',
 )
 
+class CalibrationMode(Enum):
+    POSITIONING_USER = auto()
+    CALIBRATING_EYES = auto()
+    FINALIZING_CALIBRATION = auto()
+    CALIBRATION_CONCLUDED = auto()
+
 class CalibrationFrame(wx.Frame):
     def __init__(self, parent=None, title='Eye-Tracking Calibration', debug=False):
         self.debug = debug
+        self.mode = None
 
         wx.Frame.__init__(self, parent, title=title, size=(200, 100))
 
@@ -56,21 +65,22 @@ class CalibrationFrame(wx.Frame):
         }
 
     def OnCalibration(self, event):
-        if event.calibration_event_type == SHOW_POINT:
+        if event.calibration_event_type == CALIBRATION_CONCLUDED:
+            self.mode = CalibrationMode.CALIBRATION_CONCLUDED
+            self.Close()
+        elif event.calibration_event_type == FINALIZING_CALIBRATION:
+            self.mode = CalibrationMode.FINALIZING_CALIBRATION
+        elif event.calibration_event_type == SHOW_POINT:
+            self.mode = CalibrationMode.CALIBRATING_EYES
             self.current_point = event.point
             self.success_count = event.success_count
-
-            # Force a redraw
-            self.Refresh(eraseBackground=ERASE_BACKGROUND)
-            self.Update()
-        if event.calibration_event_type == UPDATE_USER_POSITION:
+        elif event.calibration_event_type == UPDATE_USER_POSITION:
+            self.mode = CalibrationMode.POSITIONING_USER
             self.user_position_guide = event.user_position_guide
 
-            # Force a redraw
-            self.Refresh(eraseBackground=ERASE_BACKGROUND)
-            self.Update()
-        if event.calibration_event_type == CALIBRATION_CONCLUDED:
-            self.Close()
+        # Force a redraw
+        self.Refresh(eraseBackground=ERASE_BACKGROUND)
+        self.Update()
 
     def CloseFrame(self, event):
         print(f"Closing Frame ({self.__class__.__name__})")
@@ -86,14 +96,22 @@ class CalibrationFrame(wx.Frame):
 
         display_width, display_height = wx.DisplaySize()
 
-        if self.current_point:
-            self.DrawCalibrationPoints(dc, display_width, display_height, self.success_count)
-        elif self.user_position_guide:
+        if self.mode == CalibrationMode.POSITIONING_USER:
             self.DrawUserPositionInstructions(dc, display_width, display_height)
             self.DrawUserPositionGuide(dc, display_width, display_height)
+        elif self.mode == CalibrationMode.CALIBRATING_EYES:
+            self.DrawCalibrationPoints(dc, display_width, display_height, self.success_count)
+        elif self.mode == CalibrationMode.FINALIZING_CALIBRATION:
+            self.DrawFinalizingCalibration(dc, display_width, display_height)
 
         if self.debug:
             self.DrawConfigDebugInfo(dc, display_width, display_height)
+
+    def DrawFinalizingCalibration(self, dc, display_width, display_height):
+        text = 'Finalizing calibration'
+
+        dc.SetTextForeground("blue")
+        dc.DrawText(text=text, x=10, y=10)
 
     def DrawUserPositionInstructions(self, dc, display_width, display_height):
         instruction_margin = 40
@@ -297,6 +315,8 @@ class CalibrationFrame(wx.Frame):
 
         for config_name in constants_and_defaults:
             config_text += f"{config_name} = {globals()[config_name]}\n"
+
+        config_text += "Current Mode: {self.mode}"
 
         # TODO: Why is the text width so large?
         text_width, text_height = dc.GetTextExtent(config_text)
