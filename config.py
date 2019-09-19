@@ -29,6 +29,7 @@ constants_and_defaults = {
     "DOT_RESULT_BACK_LOOK": 10,
     "DOT_RESULT_SUCCESSES_REQUIREMENT": 7,
     "ERASE_BACKGROUND": False,
+    "FPS": 60,
 }
 
 if not os.path.exists(config_file_path):

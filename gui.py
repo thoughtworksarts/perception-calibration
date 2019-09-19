@@ -56,7 +56,7 @@ class CalibrationFrame(wx.Frame):
         self.user_position_guide = None
 
         self.timer = wx.Timer(self)
-        self.fps = 60
+        self.fps = FPS
         self.timer.Start(1000.0/self.fps)
 
         self.Bind(wx.EVT_TIMER, self.NextFrame)
