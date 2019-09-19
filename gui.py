@@ -55,6 +55,12 @@ class CalibrationFrame(wx.Frame):
         self.current_point = None
         self.user_position_guide = None
 
+        self.timer = wx.Timer(self)
+        self.fps = 60
+        self.timer.Start(1000.0/self.fps)
+
+        self.Bind(wx.EVT_TIMER, self.NextFrame)
+
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_UP, self.CloseFrame)
         self.Bind(EVT_CALIBRATION, self.OnCalibration)
@@ -85,6 +91,7 @@ class CalibrationFrame(wx.Frame):
             self.mode = CalibrationMode.POSITIONING_USER
             self.user_position_guide = event.user_position_guide
 
+    def NextFrame(self, event):
         # Force a redraw
         self.Refresh(eraseBackground=ERASE_BACKGROUND)
         self.Update()
