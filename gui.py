@@ -60,6 +60,7 @@ class CalibrationFrame(wx.Frame):
         self.timer.Start(1000.0/self.fps)
 
         self.Bind(wx.EVT_TIMER, self.NextFrame)
+        self.Bind(wx.EVT_ERASE_BACKGROUND, lambda e: None)  # Avoid flicker
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_UP, self.CloseFrame)
